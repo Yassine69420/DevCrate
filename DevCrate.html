@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevCrate - Useful Tools for Programmers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .tool-card {
+            transition: all 0.3s ease;
+        }
+        .theme-toggle {
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Dev<span class="text-primary-600 dark:text-primary-400">Crate</span></h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">A curated collection of essential developer tools</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="mb-16 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">🛠 Useful Tools for Programmers</h2>
+            <p class="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Boost your productivity with these essential developer utilities. All tools are free to use and designed to make your coding life easier.
+            </p>
+        </section>
+
+        <!-- Search Bar -->
+        <div class="mb-12 max-w-2xl mx-auto">
+            <div class="relative">
+                <input type="text" placeholder="Search tools..." class="w-full px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                <button class="absolute right-3 top-3 text-gray-400 hover:text-primary-500">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tools Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Tool Card 1 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Multi-language Code Formatter</h3>
+                <p class="text-gray-600 dark:text-gray-400">Format your code in multiple languages with consistent styling and indentation.</p>
+            </a>
+
+            <!-- Tool Card 2 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Regex Tester</h3>
+                <p class="text-gray-600 dark:text-gray-400">Test and debug regular expressions with real-time matching and highlighting.</p>
+            </a>
+
+            <!-- Tool Card 3 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">JSON/YAML/XML Beautifier</h3>
+                <p class="text-gray-600 dark:text-gray-400">Validate and beautify your structured data formats with syntax highlighting.</p>
+            </a>
+
+            <!-- Tool Card 4 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">UUID Generator</h3>
+                <p class="text-gray-600 dark:text-gray-400">Generate UUIDs (v1, v4) for your applications with copy functionality.</p>
+            </a>
+
+            <!-- Tool Card 5 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Hash Generator</h3>
+                <p class="text-gray-600 dark:text-gray-400">Generate cryptographic hashes (MD5, SHA256, etc.) from your input text.</p>
+            </a>
+
+            <!-- Tool Card 6 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">JWT Decoder</h3>
+                <p class="text-gray-600 dark:text-gray-400">Decode and inspect JSON Web Tokens to verify their contents.</p>
+            </a>
+
+            <!-- Tool Card 7 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Base64 Encode/Decode</h3>
+                <p class="text-gray-600 dark:text-gray-400">Convert between Base64 and plain text with easy copy functionality.</p>
+            </a>
+
+            <!-- Tool Card 8 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Cron Expression Tester</h3>
+                <p class="text-gray-600 dark:text-gray-400">Validate and understand cron expressions with human-readable explanations.</p>
+            </a>
+
+            <!-- Tool Card 9 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Diff Checker</h3>
+                <p class="text-gray-600 dark:text-gray-400">Compare text or code files to see differences with highlighted changes.</p>
+            </a>
+
+            <!-- Tool Card 10 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-paragraph"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Lorem Ipsum Generator</h3>
+                <p class="text-gray-600 dark:text-gray-400">Generate placeholder text in various formats and lengths.</p>
+            </a>
+
+            <!-- Tool Card 11 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Color Picker/Converter</h3>
+                <p class="text-gray-600 dark:text-gray-400">Convert between HEX, RGB, HSL color formats with visual picker.</p>
+            </a>
+
+            <!-- Tool Card 12 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fab fa-markdown"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Markdown Previewer</h3>
+                <p class="text-gray-600 dark:text-gray-400">Write Markdown and see the rendered HTML output in real-time.</p>
+            </a>
+
+            <!-- Tool Card 13 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Timestamp ↔ Date Converter</h3>
+                <p class="text-gray-600 dark:text-gray-400">Convert between Unix timestamps and human-readable dates.</p>
+            </a>
+
+            <!-- Tool Card 14 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Unit Converter</h3>
+                <p class="text-gray-600 dark:text-gray-400">Convert between bytes, time units, and other common measurements.</p>
+            </a>
+
+            <!-- Tool Card 15 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fab fa-git-alt"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Git Cheat Sheet</h3>
+                <p class="text-gray-600 dark:text-gray-400">Quick reference for common Git commands with explanations.</p>
+            </a>
+
+            <!-- Tool Card 16 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Code Snippet Organizer</h3>
+                <p class="text-gray-600 dark:text-gray-400">Organize and manage your code snippets by language and category.</p>
+            </a>
+
+            <!-- Tool Card 17 -->
+            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
+                    <i class="fab fa-docker"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Dockerfile & CI Generator</h3>
+                <p class="text-gray-600 dark:text-gray-400">Generate Dockerfile templates and CI configuration files.</p>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2023 DevCrate. All tools are free to use.</p>
+            <div class="mt-4 space-x-6">
+                <a href="#" class="hover:text-primary-500"><i class="fab fa-github"></i></a>
+                <a href="#" class="hover:text-primary-500"><i
+</html>

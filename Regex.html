@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regex Tester | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              mono: ['"Fira Code"', '"Courier New"', 'monospace'],
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(30deg);
+      }
+      .code-editor {
+        min-height: 250px;
+        font-family: "Fira Code", "Courier New", monospace;
+        line-height: 1.6;
+        tab-size: 4;
+      }
+      #highlightedOutput {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      .match-highlight {
+        background-color: rgba(59, 130, 246, 0.5);
+        border-radius: 3px;
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7);
+      }
+      .regex-input:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 1px #38bdf8;
+      }
+      .regex-input.invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 1px #ef4444;
+      }
+      @keyframes pulse {
+        50% { opacity: 0.6; }
+      }
+      .animate-pulse-fast {
+        animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="#" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            JavaScript Regex Tester
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+        >
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </header>
+
+      <main>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 mb-8">
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <div class="flex-grow w-full">
+                    <label for="regexPattern" class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Regular Expression</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-gray-400 dark:text-gray-500">/</span>
+                        <input type="text" id="regexPattern" placeholder="Enter your regex pattern here" class="regex-input font-mono w-full pl-6 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none transition">
+                        <span class="absolute right-3 text-gray-400 dark:text-gray-500">/</span>
+                    </div>
+                    <p id="regexError" class="text-red-500 text-xs mt-1 h-4"></p>
+                </div>
+                <div class="flex items-center space-x-4 pt-5 md:pt-6">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="flagGlobal" class="rounded text-primary-600 focus:ring-primary-500" checked>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">g</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="flagIgnoreCase" class="rounded text-primary-600 focus:ring-primary-500" checked>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">i</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="flagMultiline" class="rounded text-primary-600 focus:ring-primary-500">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">m</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+            >
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Test String
+              </h2>
+               <button
+                  id="clearBtn"
+                  class="text-gray-500 hover:text-primary-500"
+                  title="Clear input"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <textarea
+              id="testString"
+              class="code-editor w-full p-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none resize-y"
+              placeholder="Paste your test string here..."
+              spellcheck="false"
+            ></textarea>
+          </div>
+
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+            >
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Match Result (<span id="matchCount">0</span>)
+              </h2>
+               <button
+                  id="copyBtn"
+                  class="text-gray-500 hover:text-primary-500"
+                  title="Copy All Matches"
+                >
+                  <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div
+              id="highlightedOutput"
+              class="code-editor w-full p-4 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900 overflow-auto"
+            ><span class="text-gray-400 dark:text-gray-500">// Matches will be highlighted here...</span></div>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Regex Cheatsheet</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Anchors</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">^</code> - Start of string</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">$</code> - End of string</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\b</code> - Word boundary</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Character Classes</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\d</code> - Digit (0-9)</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\w</code> - Word character (a-z, A-Z, 0-9, _)</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\s</code> - Whitespace character</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">.</code> - Any character (except newline)</p>
+                </div>
+                 <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Quantifiers</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">*</code> - 0 or more</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">+</code> - 1 or more</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">?</code> - 0 or 1</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">{n}</code> - Exactly n times</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Groups & Ranges</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">(...)</code> - Capturing group</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">[abc]</code> - Match a, b, or c</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">[a-z]</code> - Any lowercase letter</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Flags</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">g</code> - Global match</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">i</code> - Case-insensitive</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">m</code> - Multiline mode</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">Escaped Characters</h3>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\+</code> - Match a literal '+' sign</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\.</code> - Match a literal '.'</p>
+                    <p><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">\\</code> - Match a literal '\'</p>
+                </div>
+            </div>
+        </div>
+      </main>
+
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>© 2025 DevCrate. All tools are free to use.</p>
+      </footer>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const themeToggle = document.getElementById("themeToggle");
+        const regexPatternInput = document.getElementById("regexPattern");
+        const testStringInput = document.getElementById("testString");
+        const flagGlobal = document.getElementById("flagGlobal");
+        const flagIgnoreCase = document.getElementById("flagIgnoreCase");
+        const flagMultiline = document.getElementById("flagMultiline");
+        const highlightedOutput = document.getElementById("highlightedOutput");
+        const matchCountEl = document.getElementById("matchCount");
+        const regexErrorEl = document.getElementById("regexError");
+        const clearBtn = document.getElementById("clearBtn");
+        const copyBtn = document.getElementById("copyBtn");
+        
+        let allMatches = [];
+
+        // --- Core Logic ---
+        function runTest() {
+            const pattern = regexPatternInput.value;
+            const testString = testStringInput.value;
+            let flags = "";
+            if (flagGlobal.checked) flags += "g";
+            if (flagIgnoreCase.checked) flags += "i";
+            if (flagMultiline.checked) flags += "m";
+
+            // Reset UI
+            highlightedOutput.innerHTML = '';
+            regexErrorEl.textContent = '';
+            regexPatternInput.classList.remove('invalid');
+            allMatches = [];
+
+            if (!pattern) {
+                highlightedOutput.textContent = testString;
+                matchCountEl.textContent = '0';
+                return;
+            }
+            
+            if (!testString) {
+                highlightedOutput.innerHTML = '<span class="text-gray-400 dark:text-gray-500">// Matches will be highlighted here...</span>';
+                matchCountEl.textContent = '0';
+                return;
+            }
+            
+            try {
+                const regex = new RegExp(pattern, flags);
+                let outputHtml = '';
+                let lastIndex = 0;
+                
+                // Use matchAll for robust iteration, especially with the 'g' flag
+                const matches = testString.matchAll(regex);
+                
+                for (const match of matches) {
+                    allMatches.push(match[0]);
+                    const startIndex = match.index;
+                    const endIndex = startIndex + match[0].length;
+                    
+                    // Add text before the match
+                    outputHtml += escapeHtml(testString.substring(lastIndex, startIndex));
+                    // Add the highlighted match
+                    outputHtml += `<span class="match-highlight">${escapeHtml(match[0])}</span>`;
+                    
+                    lastIndex = endIndex;
+                }
+
+                // Add any remaining text after the last match
+                outputHtml += escapeHtml(testString.substring(lastIndex));
+                
+                highlightedOutput.innerHTML = outputHtml || escapeHtml(testString);
+                matchCountEl.textContent = allMatches.length;
+
+            } catch (e) {
+                regexPatternInput.classList.add('invalid');
+                regexErrorEl.textContent = e.message;
+                highlightedOutput.textContent = testString;
+                matchCountEl.textContent = '0';
+            }
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // --- Event Listeners ---
+        [regexPatternInput, testStringInput].forEach(el => el.addEventListener('input', runTest));
+        [flagGlobal, flagIgnoreCase, flagMultiline].forEach(el => el.addEventListener('change', runTest));
+        
+        // Initial run in case of cached values
+        runTest();
+        
+        // --- Theme Toggle ---
+        themeToggle.addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark");
+            localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+
+        if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+
+        // --- Button Functionality ---
+        clearBtn.addEventListener("click", () => {
+            testStringInput.value = "";
+            runTest();
+        });
+
+        copyBtn.addEventListener("click", () => {
+            if (allMatches.length > 0) {
+                navigator.clipboard.writeText(allMatches.join('\n'))
+                    .then(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                        setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy matches: ', err);
+                        copyBtn.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+                        setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+                    });
+            }
+        });
+
+    </script>
+  </body>
+</html>

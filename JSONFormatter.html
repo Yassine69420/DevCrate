@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON/YAML/XML Beautifier | DevCrate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- js-yaml for YAML processing -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <!-- Prettier for XML formatting -->
+    <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-xml.js"></script>
+    <!-- highlight.js for syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+      // Tailwind CSS Configuration
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              mono: ['"Fira Code"', '"Courier New"', "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* General Transitions and Effects */
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(30deg);
+      }
+      .btn-primary {
+        transition: all 0.2s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      /* Code Editor Styling */
+      .code-editor {
+        min-height: 400px;
+        font-family: "Fira Code", "Courier New", monospace;
+        line-height: 1.6;
+        tab-size: 2;
+      }
+
+      /* Custom highlight.js styles for light mode */
+      html:not(.dark) .hljs {
+        background: #f3f4f6; /* bg-gray-100 */
+        color: #111827; /* text-gray-900 */
+      }
+      html:not(.dark) .hljs-comment,
+      html:not(.dark) .hljs-quote {
+        color: #6b7280;
+      }
+      html:not(.dark) .hljs-keyword,
+      html:not(.dark) .hljs-selector-tag,
+      html:not(.dark) .hljs-subst {
+        color: #8b5cf6;
+      }
+      html:not(.dark) .hljs-number,
+      html:not(.dark) .hljs-literal,
+      html:not(.dark) .hljs-variable,
+      html:not(.dark) .hljs-template-variable,
+      html:not(.dark) .hljs-tag .hljs-attr {
+        color: #f59e0b;
+      }
+      html:not(.dark) .hljs-string,
+      html:not(.dark) .hljs-doctag {
+        color: #10b981;
+      }
+      html:not(.dark) .hljs-title,
+      html:not(.dark) .hljs-section,
+      html:not(.dark) .hljs-selector-id {
+        color: #3b82f6;
+      }
+      html:not(.dark) .hljs-attribute,
+      html:not(.dark) .hljs-attr {
+        color: #ef4444;
+      }
+      html:not(.dark) .hljs-tag {
+        color: #d946ef;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header -->
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="#" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400"
+                >Crate</span
+              >
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            JSON / YAML / XML Beautifier
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+        >
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </header>
+
+      <!-- Main Content -->
+      <main>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Input Section -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+            >
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Input
+              </h2>
+              <div class="flex items-center space-x-2">
+                <select
+                  id="languageSelect"
+                  class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="json">JSON</option>
+                  <option value="yaml">YAML</option>
+                  <option value="xml">XML</option>
+                </select>
+                <button
+                  id="clearBtn"
+                  class="text-gray-500 hover:text-primary-500"
+                  title="Clear input"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="inputData"
+              class="code-editor w-full p-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none resize-y"
+              placeholder="Paste your JSON, YAML, or XML here..."
+              spellcheck="false"
+            ></textarea>
+          </div>
+
+          <!-- Output Section -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+            >
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Formatted Output
+              </h2>
+              <button
+                id="copyBtn"
+                class="text-gray-500 hover:text-primary-500"
+                title="Copy to clipboard"
+              >
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <pre
+              class="code-editor w-full overflow-auto"
+            ><code id="outputData" class="p-4 w-full block"></code></pre>
+          </div>
+        </div>
+
+        <!-- Action and Status Section -->
+        <div
+          class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div
+            id="statusMessage"
+            class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5"
+          >
+            &nbsp;
+          </div>
+          <button
+            id="formatBtn"
+            class="btn-primary w-full sm:w-auto px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium"
+          >
+            <i class="fas fa-magic mr-2"></i> Beautify
+          </button>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>
+          © 2025 DevCrate. Validate and beautify your structured data formats
+          with syntax highlighting.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM Elements ---
+        const themeToggle = document.getElementById("themeToggle");
+        const languageSelect = document.getElementById("languageSelect");
+        const inputData = document.getElementById("inputData");
+        const outputData = document.getElementById("outputData");
+        const formatBtn = document.getElementById("formatBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const copyBtn = document.getElementById("copyBtn");
+        const statusMessage = document.getElementById("statusMessage");
+
+        // --- Core Formatting Logic ---
+        const formatData = () => {
+          const lang = languageSelect.value;
+          const input = inputData.value.trim();
+
+          // Clear previous state
+          statusMessage.textContent = "";
+          statusMessage.className = "text-sm font-medium";
+          outputData.textContent = "";
+          outputData.className = `language-${lang}`;
+
+          if (!input) {
+            statusMessage.textContent =
+              "Ready. Paste some data and click Beautify.";
+            statusMessage.classList.add("text-gray-500", "dark:text-gray-400");
+            hljs.highlightElement(outputData);
+            return;
+          }
+
+          try {
+            let formatted = "";
+            // --- Language Specific Formatting ---
+            switch (lang) {
+              case "json":
+                const jsonObj = JSON.parse(input);
+                formatted = JSON.stringify(jsonObj, null, 2);
+                statusMessage.textContent =
+                  "Valid JSON successfully formatted.";
+                statusMessage.classList.add("text-green-500");
+                break;
+
+              case "yaml":
+                const yamlObj = jsyaml.load(input);
+                // js-yaml's dump function produces clean, indented output by default.
+                formatted = jsyaml.dump(yamlObj);
+                statusMessage.textContent =
+                  "Valid YAML successfully formatted.";
+                statusMessage.classList.add("text-green-500");
+                break;
+
+              case "xml":
+                // Use Prettier for robust XML formatting
+                formatted = prettier.format(input, {
+                  parser: "xml",
+                  plugins: prettierPlugins,
+                  printWidth: 80,
+                  tabWidth: 2,
+                });
+                statusMessage.textContent = "Valid XML successfully formatted.";
+                statusMessage.classList.add("text-green-500");
+                break;
+            }
+
+            outputData.textContent = formatted;
+          } catch (error) {
+            // --- Error Handling ---
+            outputData.textContent = input; // Show the original input on error
+            statusMessage.textContent = `Error: ${
+              error.message.split("\n")[0]
+            }`;
+            statusMessage.classList.add("text-red-500");
+            console.error("Formatting Error:", error);
+          }
+
+          // Apply syntax highlighting regardless of success or failure
+          hljs.highlightElement(outputData);
+        };
+
+        // --- Event Listeners ---
+        formatBtn.addEventListener("click", formatData);
+
+        clearBtn.addEventListener("click", () => {
+          inputData.value = "";
+          outputData.textContent = "";
+          statusMessage.textContent = "";
+          hljs.highlightElement(outputData);
+        });
+
+        copyBtn.addEventListener("click", () => {
+          if (outputData.textContent) {
+            navigator.clipboard
+              .writeText(outputData.textContent)
+              .then(() => {
+                copyBtn.innerHTML =
+                  '<i class="fas fa-check text-green-500"></i>';
+                setTimeout(() => {
+                  copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+              })
+              .catch((err) => {
+                console.error("Failed to copy text: ", err);
+                copyBtn.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+                setTimeout(() => {
+                  copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+              });
+          }
+        });
+
+        // Re-run highlighting on language change if there's output
+        languageSelect.addEventListener("change", () => {
+          if (outputData.textContent) {
+            outputData.className = `language-${languageSelect.value}`;
+            hljs.highlightElement(outputData);
+          }
+        });
+
+        // --- Theme Toggle ---
+        const applyTheme = (theme) => {
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        };
+
+        themeToggle.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", isDark ? "dark" : "light");
+        });
+
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        applyTheme(savedTheme);
+      });
+    </script>
+  </body>
+</html>
