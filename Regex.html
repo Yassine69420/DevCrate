@@ -77,7 +77,7 @@
     <div class="container mx-auto px-4 py-8">
       <header class="flex justify-between items-center mb-8">
         <div>
-          <a href="#" class="flex items-center">
+          <a href="DevCrate.html" class="flex items-center">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
               Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
             </h1>
@@ -328,8 +328,6 @@
 
         if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
             document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
         }
 
         // --- Button Functionality ---

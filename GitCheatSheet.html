@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Git Cheat Sheet | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              mono: ['"Fira Code"', '"Courier New"', 'monospace'],
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(30deg);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="DevCrate.html" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            Git Cheat Sheet
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+        >
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </header>
+
+      <main class="space-y-12">
+        <section id="setup">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Setup</h2>
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git config --global user.name "[name]"</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Set the name that will be attached to your commits and tags.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git config --global user.email "[email]"</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Set the email address that will be attached to your commits and tags.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="starting">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Starting a Project</h2>
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git init</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Initialize a new local repository.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git clone [url]</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Clone a remote repository to your local machine.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="day-to-day">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Day-to-Day Work</h2>
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git status</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Show the working tree status.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git add [file]</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Add a file to the staging area.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git commit -m "[message]"</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Commit the staged changes with a message.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git pull</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Fetch and merge changes from the remote repository.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git push</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Push your committed changes to the remote repository.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="branching">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Branching</h2>
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git branch</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">List all local branches.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git branch [branch-name]</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Create a new branch.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git checkout [branch-name]</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Switch to another branch.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git merge [branch-name]</code>
+              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Merge a branch into your current branch.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>© 2025 DevCrate. All tools are free to use.</p>
+      </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const themeToggle = document.getElementById("themeToggle");
+
+            themeToggle.addEventListener("click", () => {
+                document.documentElement.classList.toggle("dark");
+                localStorage.setItem(
+                    "theme",
+                    document.documentElement.classList.contains("dark")
+                    ? "dark"
+                    : "light"
+                );
+            });
+
+            if (
+                localStorage.getItem("theme") === "dark" ||
+                (!localStorage.getItem("theme") &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches)
+            ) {
+                document.documentElement.classList.add("dark");
+            }
+        });
+    </script>
+  </body>
+</html>
