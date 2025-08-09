@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Picker/Converter | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              mono: ['"Fira Code"', '"Courier New"', 'monospace'],
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(30deg);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="DevCrate.html" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            Color Picker/Converter
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+        >
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </header>
+
+      <main>
+        <div class="max-w-4xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Color Picker and Preview -->
+            <div class="flex flex-col items-center">
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Color Picker</h2>
+              <div class="relative">
+                <input type="color" id="colorPicker" class="w-48 h-48 p-0 border-none rounded-full cursor-pointer" value="#38bdf8">
+              </div>
+            </div>
+
+            <!-- Color Values -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Color Values</h2>
+              <div class="space-y-4">
+                <!-- HEX -->
+                <div>
+                  <label for="hexInput" class="text-sm font-medium text-gray-700 dark:text-gray-300">HEX</label>
+                  <div class="relative mt-1">
+                    <input type="text" id="hexInput" class="font-mono w-full pl-4 pr-10 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <button class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-primary-500" data-copy="hexInput">
+                      <i class="far fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- RGB -->
+                <div>
+                  <label for="rgbInput" class="text-sm font-medium text-gray-700 dark:text-gray-300">RGB</label>
+                  <div class="relative mt-1">
+                    <input type="text" id="rgbInput" class="font-mono w-full pl-4 pr-10 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                     <button class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-primary-500" data-copy="rgbInput">
+                      <i class="far fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- HSL -->
+                <div>
+                  <label for="hslInput" class="text-sm font-medium text-gray-700 dark:text-gray-300">HSL</label>
+                  <div class="relative mt-1">
+                    <input type="text" id="hslInput" class="font-mono w-full pl-4 pr-10 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+                     <button class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-primary-500" data-copy="hslInput">
+                      <i class="far fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>© 2025 DevCrate. All tools are free to use.</p>
+      </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const themeToggle = document.getElementById("themeToggle");
+            const colorPicker = document.getElementById("colorPicker");
+            const hexInput = document.getElementById("hexInput");
+            const rgbInput = document.getElementById("rgbInput");
+            const hslInput = document.getElementById("hslInput");
+
+            // --- Color Conversion Functions ---
+            function hexToRgb(hex) {
+                let r = 0, g = 0, b = 0;
+                if (hex.length == 4) {
+                    r = "0x" + hex[1] + hex[1];
+                    g = "0x" + hex[2] + hex[2];
+                    b = "0x" + hex[3] + hex[3];
+                } else if (hex.length == 7) {
+                    r = "0x" + hex[1] + hex[2];
+                    g = "0x" + hex[3] + hex[4];
+                    b = "0x" + hex[5] + hex[6];
+                }
+                return `rgb(${+r}, ${+g}, ${+b})`;
+            }
+
+            function rgbToHex(r, g, b) {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            }
+
+            function rgbToHsl(r, g, b) {
+                r /= 255, g /= 255, b /= 255;
+                let max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+
+                if (max == min) {
+                    h = s = 0; // achromatic
+                } else {
+                    let d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+
+                return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+            }
+
+            function hslToRgb(h, s, l) {
+                let r, g, b;
+                h /= 360;
+                s /= 100;
+                l /= 100;
+
+                if (s == 0) {
+                    r = g = b = l; // achromatic
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+
+                return `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+            }
+
+            // --- Update Functions ---
+            function updateColorValues(source, value) {
+                let hex, rgb, hsl;
+
+                if (source === 'picker' || source === 'hex') {
+                    hex = value;
+                    rgb = hexToRgb(hex);
+                    const [r, g, b] = rgb.match(/\d+/g).map(Number);
+                    hsl = rgbToHsl(r, g, b);
+                } else if (source === 'rgb') {
+                    rgb = value;
+                    const [r, g, b] = rgb.match(/\d+/g).map(Number);
+                    hex = rgbToHex(r, g, b);
+                    hsl = rgbToHsl(r, g, b);
+                } else if (source === 'hsl') {
+                    hsl = value;
+                    const [h, s, l] = hsl.match(/\d+/g).map(Number);
+                    rgb = hslToRgb(h, s, l);
+                    const [r, g, b_] = rgb.match(/\d+/g).map(Number);
+                    hex = rgbToHex(r, g, b_);
+                }
+
+                hexInput.value = hex.toUpperCase();
+                rgbInput.value = rgb;
+                hslInput.value = hsl;
+                colorPicker.value = hex;
+                document.body.style.setProperty('--color-preview', hex);
+            }
+
+            // --- Event Listeners ---
+            colorPicker.addEventListener('input', (e) => {
+                updateColorValues('picker', e.target.value);
+            });
+
+            hexInput.addEventListener('change', (e) => {
+                updateColorValues('hex', e.target.value);
+            });
+
+            rgbInput.addEventListener('change', (e) => {
+                updateColorValues('rgb', e.target.value);
+            });
+
+            hslInput.addEventListener('change', (e) => {
+                updateColorValues('hsl', e.target.value);
+            });
+
+            document.querySelectorAll('[data-copy]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const inputId = button.getAttribute('data-copy');
+                    const input = document.getElementById(inputId);
+                    input.select();
+                    document.execCommand('copy');
+
+                    const originalIcon = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                    setTimeout(() => {
+                        button.innerHTML = originalIcon;
+                    }, 1500);
+                });
+            });
+
+            // --- Theme Toggle ---
+            themeToggle.addEventListener("click", () => {
+                document.documentElement.classList.toggle("dark");
+                localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+            });
+
+            if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                document.documentElement.classList.add("dark");
+            }
+
+            // Initial color setup
+            updateColorValues('picker', colorPicker.value);
+        });
+    </script>
+  </body>
+</html>
