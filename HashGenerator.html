@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Generator | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', '"Courier New"', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .theme-toggle {
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <a href="DevCrate.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                        Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+                    </h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Hash Generator</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Input Text</h2>
+                        <button id="clearBtn" class="text-gray-500 hover:text-primary-500" title="Clear input">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <textarea id="inputText" class="w-full h-48 p-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none resize-y" placeholder="Enter text to hash..."></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Generated Hashes</h2>
+                        <select id="hashType" class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="MD5">MD5</option>
+                            <option value="SHA1">SHA1</option>
+                            <option value="SHA256" selected>SHA256</option>
+                            <option value="SHA512">SHA512</option>
+                        </select>
+                    </div>
+                    <div id="hashOutputs"></div>
+                </div>
+            </div>
+             <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div id="statusMessage" class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5">
+                    &nbsp;
+                </div>
+                <button id="generateBtn" class="btn-primary w-full sm:w-auto px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium">
+                    <i class="fas fa-bolt mr-2"></i> Generate
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2023 DevCrate. Generate cryptographic hashes from your input text.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const inputText = document.getElementById('inputText');
+            const hashType = document.getElementById('hashType');
+            const generateBtn = document.getElementById('generateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const hashOutputs = document.getElementById('hashOutputs');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const generateHashes = () => {
+                const text = inputText.value;
+                if (!text) {
+                    statusMessage.textContent = 'Please enter some text to hash.';
+                    statusMessage.className = 'text-sm font-medium text-yellow-500';
+                    return;
+                }
+
+                const selectedHash = hashType.value;
+                let hash;
+                switch(selectedHash) {
+                    case 'MD5':
+                        hash = CryptoJS.MD5(text).toString();
+                        break;
+                    case 'SHA1':
+                        hash = CryptoJS.SHA1(text).toString();
+                        break;
+                    case 'SHA256':
+                        hash = CryptoJS.SHA256(text).toString();
+                        break;
+                    case 'SHA512':
+                        hash = CryptoJS.SHA512(text).toString();
+                        break;
+                }
+
+                hashOutputs.innerHTML = `
+                    <div class="relative bg-gray-100 dark:bg-gray-900 rounded-lg p-4 font-mono text-sm text-gray-900 dark:text-white break-all">
+                        <span>${hash}</span>
+                        <button class="copy-btn absolute top-2 right-2 text-gray-500 hover:text-primary-500" title="Copy to clipboard" data-hash="${hash}">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+
+                statusMessage.textContent = `Generated ${selectedHash} hash.`;
+                statusMessage.className = 'text-sm font-medium text-green-500';
+            };
+
+            generateBtn.addEventListener('click', generateHashes);
+            clearBtn.addEventListener('click', () => {
+                inputText.value = '';
+                hashOutputs.innerHTML = '';
+                statusMessage.textContent = '';
+            });
+
+            hashOutputs.addEventListener('click', (e) => {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (copyBtn) {
+                    const hashToCopy = copyBtn.dataset.hash;
+                    navigator.clipboard.writeText(hashToCopy)
+                        .then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy text: ', err);
+                            copyBtn.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                            }, 2000);
+                        });
+                }
+            });
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
