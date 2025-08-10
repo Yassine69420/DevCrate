@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Decoder | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', '"Courier New"', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .theme-toggle {
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <a href="DevCrate.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                        Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+                    </h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">JWT Decoder</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Encoded JWT</h2>
+                        <button id="clearBtn" class="text-gray-500 hover:text-primary-500" title="Clear input">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <textarea id="jwtInput" class="w-full h-48 p-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none resize-y" placeholder="Paste your JWT here..."></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div class="space-y-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Header</h2>
+                        </div>
+                        <pre id="headerOutput" class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"></pre>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Payload</h2>
+                        </div>
+                        <pre id="payloadOutput" class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div id="statusMessage" class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5">
+                    &nbsp;
+                </div>
+                <button id="decodeBtn" class="btn-primary w-full sm:w-auto px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium">
+                    <i class="fas fa-key mr-2"></i> Decode
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2023 DevCrate. Decode and inspect JSON Web Tokens.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const jwtInput = document.getElementById('jwtInput');
+            const decodeBtn = document.getElementById('decodeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const headerOutput = document.getElementById('headerOutput');
+            const payloadOutput = document.getElementById('payloadOutput');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const decodeJWT = () => {
+                const token = jwtInput.value.trim();
+                if (!token) {
+                    statusMessage.textContent = 'Please paste a JWT to decode.';
+                    statusMessage.className = 'text-sm font-medium text-yellow-500';
+                    return;
+                }
+
+                try {
+                    const decodedHeader = jwt_decode(token, { header: true });
+                    const decodedPayload = jwt_decode(token);
+
+                    headerOutput.textContent = JSON.stringify(decodedHeader, null, 2);
+                    payloadOutput.textContent = JSON.stringify(decodedPayload, null, 2);
+
+                    statusMessage.textContent = 'JWT successfully decoded.';
+                    statusMessage.className = 'text-sm font-medium text-green-500';
+                } catch (error) {
+                    headerOutput.textContent = '';
+                    payloadOutput.textContent = '';
+                    statusMessage.textContent = `Error: ${error.message}`;
+                    statusMessage.className = 'text-sm font-medium text-red-500';
+                }
+            };
+
+            decodeBtn.addEventListener('click', decodeJWT);
+            clearBtn.addEventListener('click', () => {
+                jwtInput.value = '';
+                headerOutput.textContent = '';
+                payloadOutput.textContent = '';
+                statusMessage.textContent = '';
+            });
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
