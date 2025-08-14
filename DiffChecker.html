@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diff Checker | DevCrate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- diff2html CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+
+    <script>
+      // Tailwind CSS Configuration
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              mono: ['"Fira Code"', '"Courier New"', "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .theme-toggle { transition: all 0.3s ease; }
+      .theme-toggle:hover { transform: rotate(30deg); }
+      .btn-primary { transition: all 0.2s ease; }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+       .code-editor {
+        min-height: 300px;
+        font-family: "Fira Code", "Courier New", monospace;
+        line-height: 1.6;
+        tab-size: 2;
+      }
+      /* diff2html custom styles */
+      .d2h-file-header {
+        display: none;
+      }
+      .d2h-wrapper {
+        border-radius: 0.75rem;
+        border: 1px solid;
+      }
+      html.dark .d2h-wrapper {
+        border-color: #374151; /* dark:border-gray-700 */
+      }
+       html:not(.dark) .d2h-wrapper {
+        border-color: #e5e7eb; /* border-gray-200 */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header -->
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="DevCrate.html" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400"
+                >Crate</span
+              >
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            Diff Checker
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+        >
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+      </header>
+
+      <!-- Main Content -->
+      <main>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Original Text -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Original Text</h2>
+            </div>
+            <textarea id="originalText" class="code-editor w-full p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-y" placeholder="Paste original text here..."></textarea>
+          </div>
+          <!-- Changed Text -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Changed Text</h2>
+            </div>
+            <textarea id="changedText" class="code-editor w-full p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-y" placeholder="Paste changed text here..."></textarea>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-center">
+            <button id="compareBtn" class="btn-primary px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium">
+                <i class="fas fa-exchange-alt mr-2"></i> Compare
+            </button>
+        </div>
+
+        <div id="diffOutput" class="mt-8"></div>
+
+      </main>
+
+      <!-- Footer -->
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>
+          © 2025 DevCrate. Compare text or code to see the differences.
+        </p>
+      </footer>
+    </div>
+
+    <!-- diff and diff2html JS -->
+    <script src="https://cdn.jsdelivr.net/npm/diff/dist/diff.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
+        const originalText = document.getElementById("originalText");
+        const changedText = document.getElementById("changedText");
+        const compareBtn = document.getElementById("compareBtn");
+        const diffOutput = document.getElementById("diffOutput");
+
+        const generateDiff = () => {
+            const oldStr = originalText.value;
+            const newStr = changedText.value;
+
+            const diff = Diff.createTwoFilesPatch("original", "changed", oldStr, newStr, null, null, { context: 1000 });
+
+            const diff2htmlUi = new Diff2HtmlUI(diffOutput, diff, {
+                drawFileList: false,
+                matching: 'lines',
+                outputFormat: 'side-by-side',
+                renderNothingWhenEmpty: true,
+            });
+            diff2htmlUi.draw();
+        };
+
+        compareBtn.addEventListener("click", generateDiff);
+
+        // --- Theme Toggle ---
+        const applyTheme = (theme) => {
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+          // We need to redraw the diff after theme change for colors to apply
+          if(diffOutput.innerHTML) {
+              generateDiff();
+          }
+        };
+
+        themeToggle.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem("theme", isDark ? "dark" : "light");
+          applyTheme(isDark ? "dark" : "light");
+        });
+
+        const savedTheme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        applyTheme(savedTheme);
+      });
+    </script>
+  </body>
+</html>
