@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +8,12 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap"
+      rel="stylesheet"
     />
     <script>
       tailwind.config = {
@@ -29,8 +35,9 @@
               },
             },
             fontFamily: {
-              mono: ['"Fira Code"', '"Courier New"', 'monospace'],
-            }
+              sans: ["Inter", "sans-serif"],
+              mono: ['"Fira Code"', "monospace"],
+            },
           },
         },
       };
@@ -40,139 +47,371 @@
         transition: all 0.3s ease;
       }
       .theme-toggle:hover {
-        transform: rotate(30deg);
+        transform: rotate(15deg) scale(1.1);
+      }
+      .command-card {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        gap: 0.5rem 1rem;
+      }
+      @media (min-width: 768px) {
+        .command-card {
+          grid-template-columns: 1fr 2fr;
+        }
+      }
+      /* Added style for the copy button tooltip */
+      .copy-btn .tooltip {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .copy-btn:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
       }
     </style>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8">
-      <header class="flex justify-between items-center mb-8">
+      <header class="flex justify-between items-center mb-10">
         <div>
-          <a href="DevCrate.html" class="flex items-center">
+          <a href="DevCrate.html" class="flex items-center group">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-              Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+              Dev<span class="text-primary-600 dark:text-primary-400"
+                >Crate</span
+              >
             </h1>
           </a>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">
-            Git Cheat Sheet
-          </p>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">Git Cheat Sheet</p>
         </div>
         <button
           id="themeToggle"
-          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
       <main class="space-y-12">
+        <!-- Helper function to create command blocks -->
+        <script>
+          const createCommandBlock = (command, description) => {
+            const commandCard = document.createElement("div");
+            commandCard.className = "command-card";
+
+            const codeWrapper = document.createElement("div");
+            codeWrapper.className = "relative flex items-center";
+
+            // Fixed text color for code blocks
+            const codeEl = document.createElement("code");
+            codeEl.className =
+              "font-mono bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 p-3 rounded-md text-sm w-full";
+            codeEl.textContent = command;
+
+            // Copy button added
+            const copyBtn = document.createElement("button");
+            copyBtn.className =
+              "copy-btn absolute right-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 rounded p-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500";
+            copyBtn.innerHTML =
+              '<i class="far fa-copy"></i><span class="tooltip absolute -top-8 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</span>';
+
+            codeWrapper.appendChild(codeEl);
+            codeWrapper.appendChild(copyBtn);
+
+            const descEl = document.createElement("p");
+            descEl.className = "text-gray-600 dark:text-gray-400";
+            descEl.innerHTML = description;
+
+            commandCard.appendChild(codeWrapper);
+            commandCard.appendChild(descEl);
+
+            return commandCard;
+          };
+        </script>
+
+        <!-- Setup -->
         <section id="setup">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Setup</h2>
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git config --global user.name "[name]"</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Set the name that will be attached to your commits and tags.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git config --global user.email "[email]"</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Set the email address that will be attached to your commits and tags.</p>
-            </div>
-          </div>
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Configuration & Setup
+          </h2>
+          <div
+            id="setup-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
         </section>
 
-        <section id="starting">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Starting a Project</h2>
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git init</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Initialize a new local repository.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git clone [url]</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Clone a remote repository to your local machine.</p>
-            </div>
-          </div>
+        <!-- Staging -->
+        <section id="staging">
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Staging & Committing
+          </h2>
+          <div
+            id="staging-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
         </section>
 
-        <section id="day-to-day">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Day-to-Day Work</h2>
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git status</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Show the working tree status.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git add [file]</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Add a file to the staging area.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git commit -m "[message]"</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Commit the staged changes with a message.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git pull</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Fetch and merge changes from the remote repository.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git push</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Push your committed changes to the remote repository.</p>
-            </div>
-          </div>
-        </section>
-
+        <!-- Branching & Merging -->
         <section id="branching">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Branching</h2>
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git branch</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">List all local branches.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git branch [branch-name]</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Create a new branch.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git checkout [branch-name]</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Switch to another branch.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <code class="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded-md">git merge [branch-name]</code>
-              <p class="md:col-span-2 text-gray-600 dark:text-gray-400">Merge a branch into your current branch.</p>
-            </div>
-          </div>
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Branching & Merging
+          </h2>
+          <div
+            id="branching-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
+        </section>
+
+        <!-- Inspecting History -->
+        <section id="inspecting">
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Inspecting History
+          </h2>
+          <div
+            id="inspecting-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
+        </section>
+
+        <!-- Undoing Changes -->
+        <section id="undoing">
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Undoing Changes
+          </h2>
+          <div
+            id="undoing-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
+        </section>
+
+        <!-- Remotes -->
+        <section id="remotes">
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2"
+          >
+            Working with Remotes
+          </h2>
+          <div
+            id="remotes-commands"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 space-y-4"
+          ></div>
         </section>
       </main>
 
       <footer
-        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+        class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
       >
-        <p>© 2025 DevCrate. All tools are free to use.</p>
+        <p>© 2024 DevCrate. All tools are free to use.</p>
       </footer>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const themeToggle = document.getElementById("themeToggle");
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Command Data ---
+        const commands = {
+          setup: [
+            {
+              cmd: 'git config --global user.name "[name]"',
+              desc: "Set your name for all local repositories.",
+            },
+            {
+              cmd: 'git config --global user.email "[email]"',
+              desc: "Set your email for all local repositories.",
+            },
+            {
+              cmd: "git init",
+              desc: "Initialize a new local repository in the current directory.",
+            },
+            {
+              cmd: "git clone [url]",
+              desc: "Clone a remote repository to your local machine.",
+            },
+          ],
+          staging: [
+            {
+              cmd: "git status",
+              desc: "Show the status of changes as untracked, modified, or staged.",
+            },
+            {
+              cmd: "git add [file]",
+              desc: "Add a file to the staging area. Use `.` to add all modified files.",
+            },
+            {
+              cmd: 'git commit -m "[message]"',
+              desc: "Commit the staged changes with a descriptive message.",
+            },
+            {
+              cmd: "git commit --amend",
+              desc: "Modify the most recent commit (message or content).",
+            },
+          ],
+          branching: [
+            {
+              cmd: "git branch",
+              desc: "List all local branches. `*` indicates the current branch.",
+            },
+            { cmd: "git branch [branch-name]", desc: "Create a new branch." },
+            {
+              cmd: "git checkout [branch-name]",
+              desc: "Switch to another branch.",
+            },
+            {
+              cmd: "git checkout -b [branch-name]",
+              desc: "Create a new branch and switch to it.",
+            },
+            {
+              cmd: "git merge [branch-name]",
+              desc: "Merge a branch's history into the current branch.",
+            },
+            {
+              cmd: "git branch -d [branch-name]",
+              desc: "Delete a local branch.",
+            },
+          ],
+          inspecting: [
+            {
+              cmd: "git log",
+              desc: "Show commit history for the current branch.",
+            },
+            {
+              cmd: "git log --oneline",
+              desc: "Show commit history in a compact, single-line format.",
+            },
+            {
+              cmd: "git diff",
+              desc: "Show changes between working directory and staging area.",
+            },
+            {
+              cmd: "git diff --staged",
+              desc: "Show changes between the staging area and the last commit.",
+            },
+            {
+              cmd: "git show [commit-hash]",
+              desc: "Show the metadata and content changes of a specific commit.",
+            },
+          ],
+          undoing: [
+            {
+              cmd: "git reset [file]",
+              desc: "Unstage a file, but preserve its content in the working directory.",
+            },
+            {
+              cmd: "git checkout -- [file]",
+              desc: "Discard all changes in a file in the working directory.",
+            },
+            {
+              cmd: "git revert [commit-hash]",
+              desc: "Create a new commit that undoes the changes of a specified commit.",
+            },
+            {
+              cmd: "git reset --hard [commit-hash]",
+              desc: "<strong>(Dangerous)</strong> Discard all history and changes back to the specified commit.",
+            },
+          ],
+          remotes: [
+            {
+              cmd: "git remote -v",
+              desc: "List all configured remote repositories.",
+            },
+            {
+              cmd: "git pull [remote] [branch]",
+              desc: "Fetch and merge changes from a remote repository.",
+            },
+            {
+              cmd: "git push [remote] [branch]",
+              desc: "Push your committed changes to a remote repository.",
+            },
+            {
+              cmd: "git push -u origin [branch]",
+              desc: "Push a new branch to the remote and set it to track upstream changes.",
+            },
+          ],
+        };
 
-            themeToggle.addEventListener("click", () => {
-                document.documentElement.classList.toggle("dark");
-                localStorage.setItem(
-                    "theme",
-                    document.documentElement.classList.contains("dark")
-                    ? "dark"
-                    : "light"
-                );
+        // --- Dynamically Populate Commands ---
+        for (const section in commands) {
+          const container = document.getElementById(`${section}-commands`);
+          if (container) {
+            commands[section].forEach((cmd) => {
+              container.appendChild(createCommandBlock(cmd.cmd, cmd.desc));
             });
+          }
+        }
 
-            if (
-                localStorage.getItem("theme") === "dark" ||
-                (!localStorage.getItem("theme") &&
-                    window.matchMedia("(prefers-color-scheme: dark)").matches)
-            ) {
-                document.documentElement.classList.add("dark");
-            }
+        // --- Theme Toggling Logic ---
+        const themeToggle = document.getElementById("themeToggle");
+        const htmlElement = document.documentElement;
+        const moonIcon = document.getElementById("moonIcon");
+        const sunIcon = document.getElementById("sunIcon");
+
+        const applyTheme = (theme) => {
+          if (theme === "dark") {
+            htmlElement.classList.add("dark");
+            moonIcon.classList.add("hidden");
+            sunIcon.classList.remove("hidden");
+          } else {
+            htmlElement.classList.remove("dark");
+            moonIcon.classList.remove("hidden");
+            sunIcon.classList.add("hidden");
+          }
+        };
+
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          applyTheme(savedTheme);
+        } else {
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+          ).matches;
+          applyTheme(prefersDark ? "dark" : "light");
+        }
+
+        themeToggle.addEventListener("click", () => {
+          const isDark = htmlElement.classList.toggle("dark");
+          const newTheme = isDark ? "dark" : "light";
+          localStorage.setItem("theme", newTheme);
+          applyTheme(newTheme);
         });
+
+        // --- Copy Functionality ---
+        document.body.addEventListener("click", (e) => {
+          const copyBtn = e.target.closest(".copy-btn");
+          if (copyBtn) {
+            const codeElement = copyBtn.previousElementSibling;
+            const textToCopy = codeElement.textContent;
+
+            // Use a temporary textarea to copy text
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+              document.execCommand("copy");
+              // Visual feedback
+              copyBtn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+              setTimeout(() => {
+                copyBtn.innerHTML =
+                  '<i class="far fa-copy"></i><span class="tooltip absolute -top-8 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</span>';
+              }, 2000);
+            } catch (err) {
+              console.error("Failed to copy text: ", err);
+            }
+            document.body.removeChild(textArea);
+          }
+        });
+      });
     </script>
   </body>
 </html>
