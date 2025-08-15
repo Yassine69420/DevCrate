@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamp & Date Converter | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' }
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', '"Courier New"', 'monospace']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .theme-toggle { transition: all 0.3s ease; }
+        .theme-toggle:hover { transform: rotate(30deg); }
+        .btn-primary { transition: all 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .form-input { font-family: "Fira Code", "Courier New", monospace; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <a href="DevCrate.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dev<span class="text-primary-600 dark:text-primary-400">Crate</span></h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Timestamp & Date Converter</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Timestamp to Date -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Timestamp to Date</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="timestampInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unix Timestamp</label>
+                            <input type="number" id="timestampInput" class="form-input w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="e.g., 1672531199">
+                        </div>
+                        <button id="toGmtBtn" class="btn-primary w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium">Convert to GMT/UTC</button>
+                        <div>
+                            <label for="gmtOutput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GMT/UTC Date</label>
+                            <input type="text" id="gmtOutput" class="form-input w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date to Timestamp -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Date to Timestamp</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="dateInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date & Time (GMT/UTC)</label>
+                            <input type="datetime-local" id="dateInput" class="form-input w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500" step="1">
+                        </div>
+                        <button id="toTimestampBtn" class="btn-primary w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">Convert to Timestamp</button>
+                        <div>
+                            <label for="timestampOutput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unix Timestamp</label>
+                            <input type="text" id="timestampOutput" class="form-input w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="statusMessage" class="text-center mt-4 text-sm font-medium text-gray-500 dark:text-gray-400 h-5">&nbsp;</div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2025 DevCrate. Convert between timestamps and dates seamlessly.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const timestampInput = document.getElementById('timestampInput');
+            const toGmtBtn = document.getElementById('toGmtBtn');
+            const gmtOutput = document.getElementById('gmtOutput');
+            const dateInput = document.getElementById('dateInput');
+            const toTimestampBtn = document.getElementById('toTimestampBtn');
+            const timestampOutput = document.getElementById('timestampOutput');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const showStatus = (message, isError = false) => {
+                statusMessage.textContent = message;
+                statusMessage.className = `text-center mt-4 text-sm font-medium h-5 ${isError ? 'text-red-500' : 'text-green-500'}`;
+            };
+
+            toGmtBtn.addEventListener('click', () => {
+                const timestamp = parseInt(timestampInput.value, 10);
+                if (isNaN(timestamp)) {
+                    showStatus('Please enter a valid Unix timestamp.', true);
+                    return;
+                }
+                const date = dateFns.fromUnixTime(timestamp);
+                gmtOutput.value = dateFns.format(date, "yyyy-MM-dd'T'HH:mm:ss");
+                showStatus('Converted to GMT/UTC date.');
+            });
+
+            toTimestampBtn.addEventListener('click', () => {
+                if (!dateInput.value) {
+                    showStatus('Please select a date and time.', true);
+                    return;
+                }
+                const date = new Date(dateInput.value);
+                if (isNaN(date.getTime())) {
+                    showStatus('Invalid date format.', true);
+                    return;
+                }
+                timestampOutput.value = dateFns.getUnixTime(date);
+                showStatus('Converted to Unix timestamp.');
+            });
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
