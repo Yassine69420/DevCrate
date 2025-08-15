@@ -80,7 +80,7 @@
       <main>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                 Enter Cron Expression
               </h2>
             </div>
@@ -100,6 +100,63 @@
             <p id="errorMessage"></p>
         </div>
 
+        <!-- Help Guide -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    <i class="fas fa-question-circle mr-2"></i>How to Use Cron Expressions
+                </h2>
+            </div>
+            <div class="p-6 text-gray-700 dark:text-gray-300 space-y-4">
+                <p>A cron expression is a string of five fields that describe individual time details. Here’s a breakdown of the structure:</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th class="p-3 font-semibold">Field</th>
+                                <th class="p-3 font-semibold">Allowed Values</th>
+                                <th class="p-3 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <td class="p-3 font-mono">Minute</td>
+                                <td class="p-3 font-mono">0-59</td>
+                                <td class="p-3">The minute of the hour.</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <td class="p-3 font-mono">Hour</td>
+                                <td class="p-3 font-mono">0-23</td>
+                                <td class="p-3">The hour of the day.</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <td class="p-3 font-mono">Day of Month</td>
+                                <td class="p-3 font-mono">1-31</td>
+                                <td class="p-3">The day of the month.</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <td class="p-3 font-mono">Month</td>
+                                <td class="p-3 font-mono">1-12</td>
+                                <td class="p-3">The month of the year.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">Day of Week</td>
+                                <td class="p-3 font-mono">0-6</td>
+                                <td class="p-3">The day of the week (Sunday to Saturday).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Examples:</h4>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><code class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md">*/15 * * * *</code> - Runs every 15 minutes.</li>
+                        <li><code class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md">0 9 * * 1-5</code> - Runs at 9:00 AM every weekday.</li>
+                        <li><code class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md">30 22 1 * *</code> - Runs at 10:30 PM on the first day of every month.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
       </main>
 
       <!-- Footer -->

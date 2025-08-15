@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class=""> <!-- Start with no specific theme class -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevCrate - Useful Tools for Programmers</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
                     colors: {
                         primary: {
                             50: '#f0f9ff',
@@ -30,38 +36,40 @@
         }
     </script>
     <style>
-        .tool-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
+        /* Simple transition for tool cards on hover */
         .tool-card {
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Smooth transition for the theme toggle button */
         .theme-toggle {
             transition: all 0.3s ease;
         }
         .theme-toggle:hover {
-            transform: rotate(30deg);
+            transform: rotate(15deg) scale(1.1);
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
+        <!-- Header Section -->
         <header class="flex justify-between items-center mb-12">
             <div>
                 <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Dev<span class="text-primary-600 dark:text-primary-400">Crate</span></h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-2">A curated collection of essential developer tools</p>
             </div>
-            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:block"></i>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900">
+                <i id="moonIcon" class="fas fa-moon"></i>
+                <i id="sunIcon" class="fas fa-sun hidden"></i>
             </button>
         </header>
 
         <!-- Hero Section -->
         <section class="mb-16 text-center">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">🛠 Useful Tools for Programmers</h2>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">🛠️ Useful Tools for Programmers</h2>
             <p class="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
                 Boost your productivity with these essential developer utilities. All tools are free to use and designed to make your coding life easier.
             </p>
@@ -70,17 +78,17 @@
         <!-- Search Bar -->
         <div class="mb-12 max-w-2xl mx-auto">
             <div class="relative">
-                <input type="text" placeholder="Search tools..." class="w-full px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                <button class="absolute right-3 top-3 text-gray-400 hover:text-primary-500">
+                <input id="searchInput" type="text" placeholder="Search for tools like 'JSON', 'Color', 'Git'..." class="w-full px-6 py-3 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-shadow">
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
                     <i class="fas fa-search"></i>
-                </button>
+                </div>
             </div>
         </div>
 
         <!-- Tools Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Tool Card 1 -->
-            <a href="DevCrateFormater.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+        <div id="toolsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Tool cards will be dynamically checked by the search script -->
+            <a href="DevCrateFormater.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-code"></i>
                 </div>
@@ -88,8 +96,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Format your code in multiple languages with consistent styling and indentation.</p>
             </a>
 
-            <!-- Tool Card 2 -->
-            <a href="Regex.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="Regex.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-project-diagram"></i>
                 </div>
@@ -97,8 +104,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Test and debug regular expressions with real-time matching and highlighting.</p>
             </a>
 
-            <!-- Tool Card 3 -->
-            <a href="JSONFormatter.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="JSONFormatter.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-file-code"></i>
                 </div>
@@ -106,8 +112,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Validate and beautify your structured data formats with syntax highlighting.</p>
             </a>
 
-            <!-- Tool Card 4 -->
-            <a href="UUIDGenerator.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="UUIDGenerator.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-fingerprint"></i>
                 </div>
@@ -115,8 +120,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Generate UUIDs (v1, v4) for your applications with copy functionality.</p>
             </a>
 
-            <!-- Tool Card 5 -->
-            <a href="HashGenerator.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="HashGenerator.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-lock"></i>
                 </div>
@@ -124,8 +128,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Generate cryptographic hashes (MD5, SHA256, etc.) from your input text.</p>
             </a>
 
-            <!-- Tool Card 6 -->
-            <a href="JWTDecoder.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="JWTDecoder.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-key"></i>
                 </div>
@@ -133,8 +136,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Decode and inspect JSON Web Tokens to verify their contents.</p>
             </a>
 
-            <!-- Tool Card 7 -->
-            <a href="Base64.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="Base64.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-exchange-alt"></i>
                 </div>
@@ -142,8 +144,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Convert between Base64 and plain text with easy copy functionality.</p>
             </a>
 
-            <!-- Tool Card 8 -->
-            <a href="CronTester.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="CronTester.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-clock"></i>
                 </div>
@@ -151,8 +152,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Validate and understand cron expressions with human-readable explanations.</p>
             </a>
 
-            <!-- Tool Card 9 -->
-            <a href="DiffChecker.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="DiffChecker.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-file-alt"></i>
                 </div>
@@ -160,8 +160,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Compare text or code files to see differences with highlighted changes.</p>
             </a>
 
-            <!-- Tool Card 10 -->
-            <a href="LoremIpsum.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="LoremIpsum.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-paragraph"></i>
                 </div>
@@ -169,8 +168,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Generate placeholder text in various formats and lengths.</p>
             </a>
 
-            <!-- Tool Card 11 -->
-            <a href="ColorPicker.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="ColorPicker.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fas fa-palette"></i>
                 </div>
@@ -178,8 +176,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Convert between HEX, RGB, HSL color formats with visual picker.</p>
             </a>
 
-            <!-- Tool Card 12 -->
-            <a href="Markdown.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="Markdown.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fab fa-markdown"></i>
                 </div>
@@ -205,8 +202,7 @@
                 <p class="text-gray-600 dark:text-gray-400">Convert between bytes, time units, and other common measurements.</p>
             </a>
 
-            <!-- Tool Card 15 -->
-            <a href="GitCheatSheet.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+            <a href="GitCheatSheet.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fab fa-git-alt"></i>
                 </div>
@@ -214,17 +210,9 @@
                 <p class="text-gray-600 dark:text-gray-400">Quick reference for common Git commands with explanations.</p>
             </a>
 
-            <!-- Tool Card 16 -->
-            <a href="#" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
-                    <i class="fas fa-code-branch"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Code Snippet Organizer</h3>
-                <p class="text-gray-600 dark:text-gray-400">Organize and manage your code snippets by language and category.</p>
-            </a>
+          
 
-            <!-- Tool Card 17 -->
-            <a href="DockerFileCI.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700">
+             <a href="DockerFileCI.html" class="tool-card block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="text-primary-500 dark:text-primary-400 text-3xl mb-4">
                     <i class="fab fa-docker"></i>
                 </div>
@@ -232,11 +220,93 @@
                 <p class="text-gray-600 dark:text-gray-400">Generate Dockerfile templates and CI configuration files.</p>
             </a>
         </div>
+        <div id="noResults" class="hidden text-center text-gray-500 dark:text-gray-400 mt-8">
+            <p class="text-xl">No tools found matching your search.</p>
+        </div>
 
         <!-- Footer -->
         <footer class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
-            <p>© 2023 DevCrate. All tools are free to use.</p>
+            <p>© 2024 DevCrate. All tools are free to use.</p>
             <div class="mt-4 space-x-6">
                 <a href="#" class="hover:text-primary-500"><i class="fab fa-github"></i></a>
-                <a href="#" class="hover:text-primary-500"><i
+                <a href="#" class="hover:text-primary-500"><i class="fab fa-twitter"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Theme Toggling Logic ---
+            const themeToggle = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+            const moonIcon = document.getElementById('moonIcon');
+            const sunIcon = document.getElementById('sunIcon');
+
+            // Function to apply the theme
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    htmlElement.classList.add('dark');
+                    moonIcon.classList.add('hidden');
+                    sunIcon.classList.remove('hidden');
+                } else {
+                    htmlElement.classList.remove('dark');
+                    moonIcon.classList.remove('hidden');
+                    sunIcon.classList.add('hidden');
+                }
+            };
+
+            // Check for saved theme in localStorage on page load
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                // If no theme is saved, check the user's OS preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light');
+            }
+
+            // Event listener for the theme toggle button
+            themeToggle.addEventListener('click', () => {
+                const isDark = htmlElement.classList.toggle('dark');
+                const newTheme = isDark ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+
+            // --- Search Functionality Logic ---
+            const searchInput = document.getElementById('searchInput');
+            const toolsGrid = document.getElementById('toolsGrid');
+            const toolCards = toolsGrid.getElementsByClassName('tool-card');
+            const noResults = document.getElementById('noResults');
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                // Loop through all tool cards to check for a match
+                Array.from(toolCards).forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    
+                    // If the search term is found in the title or description, show the card
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        // Otherwise, hide the card
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show or hide the "no results" message
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
 </html>
