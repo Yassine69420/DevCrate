@@ -232,10 +232,10 @@
       </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- DOM Elements ---
-        const themeToggle = document.getElementById("themeToggle");
         const languageSelect = document.getElementById("languageSelect");
         const inputData = document.getElementById("inputData");
         const outputData = document.getElementById("outputData");
@@ -350,25 +350,6 @@
             hljs.highlightElement(outputData);
           }
         });
-
-        // --- Theme Toggle ---
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-          }
-        };
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-        });
-
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        applyTheme(savedTheme);
       });
     </script>
   </body>

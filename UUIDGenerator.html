@@ -99,9 +99,9 @@
         </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('themeToggle');
             const generateV1Btn = document.getElementById('generateV1Btn');
             const generateV4Btn = document.getElementById('generateV4Btn');
             const uuidOutput = document.getElementById('uuidOutput');
@@ -143,22 +143,6 @@
                         });
                 }
             });
-
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-
-            themeToggle.addEventListener('click', () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            });
-
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            applyTheme(savedTheme);
 
             // Generate a v4 UUID on page load
             generateV4UUID();

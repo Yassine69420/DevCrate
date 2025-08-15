@@ -198,10 +198,10 @@
       </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- DOM Elements ---
-        const themeToggle = document.getElementById("themeToggle");
         const inputText = document.getElementById("inputText");
         const outputText = document.getElementById("outputText");
         const encodeBtn = document.getElementById("encodeBtn");
@@ -302,29 +302,6 @@
 
         copyInputBtn.addEventListener("click", () => copyToClipboard(inputText.value, copyInputBtn));
         copyOutputBtn.addEventListener("click", () => copyToClipboard(outputText.value, copyOutputBtn));
-
-
-        // --- Theme Toggle ---
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-          }
-        };
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-          applyTheme(isDark ? "dark" : "light");
-        });
-
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        applyTheme(savedTheme);
       });
     </script>
   </body>

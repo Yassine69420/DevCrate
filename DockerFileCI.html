@@ -224,10 +224,10 @@
       </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- DOM Elements ---
-        const themeToggle = document.getElementById("themeToggle");
         const generateBtn = document.getElementById("generateBtn");
         const outputContent = document.getElementById("outputContent");
         const outputTitle = document.getElementById("outputTitle");
@@ -639,24 +639,7 @@ test:
           URL.revokeObjectURL(url);
         });
 
-        themeToggle.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            document.documentElement.classList.contains("dark")
-              ? "dark"
-              : "light"
-          );
-        });
-
         // --- Initialization ---
-        if (
-          localStorage.getItem("theme") === "dark" ||
-          (!localStorage.getItem("theme") &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
         toggleCIProvider(); // Set initial state
       });
     </script>

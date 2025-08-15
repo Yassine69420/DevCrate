@@ -140,9 +140,9 @@
     <script src="https://cdn.jsdelivr.net/npm/diff/dist/diff.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
 
+    <script src="assets/js/theme.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const themeToggle = document.getElementById("themeToggle");
         const originalText = document.getElementById("originalText");
         const changedText = document.getElementById("changedText");
         const compareBtn = document.getElementById("compareBtn");
@@ -165,31 +165,12 @@
 
         compareBtn.addEventListener("click", generateDiff);
 
-        // --- Theme Toggle ---
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-          }
-          // We need to redraw the diff after theme change for colors to apply
-          if(diffOutput.innerHTML) {
-              generateDiff();
-          }
-        };
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-          applyTheme(isDark ? "dark" : "light");
+        // Redraw diff on theme change
+        document.addEventListener('themeChanged', () => {
+            if(diffOutput.innerHTML) {
+                generateDiff();
+            }
         });
-
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        applyTheme(savedTheme);
       });
     </script>
   </body>

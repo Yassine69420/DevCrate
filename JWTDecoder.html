@@ -113,9 +113,9 @@
         </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('themeToggle');
             const jwtInput = document.getElementById('jwtInput');
             const decodeBtn = document.getElementById('decodeBtn');
             const clearBtn = document.getElementById('clearBtn');
@@ -155,22 +155,6 @@
                 payloadOutput.textContent = '';
                 statusMessage.textContent = '';
             });
-
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-
-            themeToggle.addEventListener('click', () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            });
-
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            applyTheme(savedTheme);
         });
     </script>
 </body>

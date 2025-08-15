@@ -112,9 +112,9 @@
       </footer>
     </div>
 
+    <script src="assets/js/theme.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const themeToggle = document.getElementById("themeToggle");
         const cronInput = document.getElementById("cronInput");
         const resultContainer = document.getElementById("resultContainer");
         const errorContainer = document.getElementById("errorContainer");
@@ -145,28 +145,6 @@
         };
 
         cronInput.addEventListener("input", processCron);
-
-        // --- Theme Toggle ---
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-          }
-        };
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-          applyTheme(isDark ? "dark" : "light");
-        });
-
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        applyTheme(savedTheme);
 
         // Initial run
         cronInput.value = "* * * * *";
