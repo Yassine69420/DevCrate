@@ -35,6 +35,7 @@
             }
         }
     </script>
+    <script src="assets/js/theme.js"></script>
     <style>
         /* Simple transition for tool cards on hover */
         .tool-card {
@@ -234,79 +235,6 @@
         </footer>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Theme Toggling Logic ---
-            const themeToggle = document.getElementById('themeToggle');
-            const htmlElement = document.documentElement;
-            const moonIcon = document.getElementById('moonIcon');
-            const sunIcon = document.getElementById('sunIcon');
-
-            // Function to apply the theme
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    htmlElement.classList.add('dark');
-                    moonIcon.classList.add('hidden');
-                    sunIcon.classList.remove('hidden');
-                } else {
-                    htmlElement.classList.remove('dark');
-                    moonIcon.classList.remove('hidden');
-                    sunIcon.classList.add('hidden');
-                }
-            };
-
-            // Check for saved theme in localStorage on page load
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            } else {
-                // If no theme is saved, check the user's OS preference
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                applyTheme(prefersDark ? 'dark' : 'light');
-            }
-
-            // Event listener for the theme toggle button
-            themeToggle.addEventListener('click', () => {
-                const isDark = htmlElement.classList.toggle('dark');
-                const newTheme = isDark ? 'dark' : 'light';
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            });
-
-
-            // --- Search Functionality Logic ---
-            const searchInput = document.getElementById('searchInput');
-            const toolsGrid = document.getElementById('toolsGrid');
-            const toolCards = toolsGrid.getElementsByClassName('tool-card');
-            const noResults = document.getElementById('noResults');
-
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase().trim();
-                let visibleCount = 0;
-
-                // Loop through all tool cards to check for a match
-                Array.from(toolCards).forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const description = card.querySelector('p').textContent.toLowerCase();
-                    
-                    // If the search term is found in the title or description, show the card
-                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                        card.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        // Otherwise, hide the card
-                        card.style.display = 'none';
-                    }
-                });
-
-                // Show or hide the "no results" message
-                if (visibleCount === 0) {
-                    noResults.classList.remove('hidden');
-                } else {
-                    noResults.classList.add('hidden');
-                }
-            });
-        });
-    </script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>

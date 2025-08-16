@@ -435,27 +435,11 @@
           URL.revokeObjectURL(url);
         });
 
-        themeToggle.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            document.documentElement.classList.contains("dark")
-              ? "dark"
-              : "light"
-          );
-        });
-
         // --- Initialization ---
-        if (
-          localStorage.getItem("theme") === "dark" ||
-          (!localStorage.getItem("theme") &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
         updateSemicolonOptionVisibility();
       });
     </script>
+    <script src="assets/js/main.js"></script>
     <script>
       // Ensure all plugins are available in window.prettierPlugins
       window.prettierPlugins = window.prettierPlugins || [];
