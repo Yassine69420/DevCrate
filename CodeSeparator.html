@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Separator | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <script>
+      // Initialize Tailwind CSS with dark mode and custom theme settings
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['"Fira Code"', "monospace"],
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Reusing styles from other DevCrate tools for consistency */
+      .theme-toggle { transition: all 0.3s ease; }
+      .theme-toggle:hover { transform: rotate(15deg) scale(1.1); }
+      .container { opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out; }
+      .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-track { @apply bg-gray-100 dark:bg-gray-800 rounded; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500; }
+      .input-focus { @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200; }
+      .btn-hover { @apply transition-all duration-200 transform hover:scale-105 hover:shadow-lg; }
+      button:disabled { @apply cursor-not-allowed opacity-60 transform-none shadow-none; }
+      .toast-enter { @apply opacity-0 transform translate-x-full; animation: slideIn 0.3s ease-out forwards; }
+      @keyframes slideIn { to { @apply opacity-100 transform translate-x-0; } }
+      .nav-link { @apply text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium; }
+      .nav-link.active { @apply text-primary-600 dark:text-primary-400; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                 <a href="index.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                      Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+                    </h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    Separate HTML, CSS, and JavaScript files
+                </p>
+            </div>
+            <button
+                id="themeToggle"
+                class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 input-focus"
+                aria-label="Toggle theme"
+            >
+                <i id="moonIcon" class="fas fa-moon"></i>
+                <i id="sunIcon" class="fas fa-sun hidden"></i>
+            </button>
+        </header>
+
+        <main>
+            <!-- Main Separator Component -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden p-8 space-y-8">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Paste Your HTML Code</h2>
+                    <textarea 
+                        id="codeInput" 
+                        rows="12" 
+                        class="font-mono w-full p-4 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg input-focus custom-scrollbar resize-y" 
+                        placeholder="Paste your complete HTML file content here..."
+                    ></textarea>
+                    <div class="mt-4 flex justify-center gap-4">
+                        <button id="separateBtn" class="px-8 py-3 rounded-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 btn-hover input-focus">
+                            <i class="fas fa-columns mr-2"></i>Separate Files
+                        </button>
+                         <button id="clearBtn" class="px-6 py-2 rounded-lg font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Sections -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- HTML Output -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-gray-900 dark:text-white"><i class="fab fa-html5 mr-2 text-orange-500"></i>HTML</h3>
+                            <div class="flex items-center gap-2">
+                                <button id="copyHtmlBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
+                                <button id="downloadHtmlBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="htmlOutput" rows="10" readonly class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg custom-scrollbar cursor-not-allowed"></textarea>
+                    </div>
+                    <!-- CSS Output -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-gray-900 dark:text-white"><i class="fab fa-css3-alt mr-2 text-blue-500"></i>CSS</h3>
+                            <div class="flex items-center gap-2">
+                                <button id="copyCssBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
+                                <button id="downloadCssBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="cssOutput" rows="10" readonly class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg custom-scrollbar cursor-not-allowed"></textarea>
+                    </div>
+                    <!-- JS Output -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-gray-900 dark:text-white"><i class="fab fa-js-square mr-2 text-yellow-500"></i>JavaScript</h3>
+                            <div class="flex items-center gap-2">
+                                <button id="copyJsBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
+                                <button id="downloadJsBtn" disabled class="px-3 py-1 text-sm rounded-md font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="jsOutput" rows="10" readonly class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg custom-scrollbar cursor-not-allowed"></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2025 DevCrate. Advanced tools for designers and developers.</p>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- Element Selection ---
+        const themeToggle = document.getElementById("themeToggle");
+        const moonIcon = document.getElementById("moonIcon");
+        const sunIcon = document.getElementById("sunIcon");
+        const codeInput = document.getElementById("codeInput");
+        const separateBtn = document.getElementById("separateBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const htmlOutput = document.getElementById("htmlOutput");
+        const cssOutput = document.getElementById("cssOutput");
+        const jsOutput = document.getElementById("jsOutput");
+        const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+        const downloadCssBtn = document.getElementById("downloadCssBtn");
+        const downloadJsBtn = document.getElementById("downloadJsBtn");
+        const copyHtmlBtn = document.getElementById("copyHtmlBtn");
+        const copyCssBtn = document.getElementById("copyCssBtn");
+        const copyJsBtn = document.getElementById("copyJsBtn");
+
+        /**
+         * Parses the input HTML and separates it into HTML, CSS, and JS parts.
+         */
+        function handleSeparateCode() {
+            const fullCode = codeInput.value;
+            if (!fullCode.trim()) {
+                showToast("Input is empty.", "info");
+                return;
+            }
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(fullCode, 'text/html');
+
+            // --- Extract CSS ---
+            const styleTags = Array.from(doc.querySelectorAll('style'));
+            const cssContent = styleTags.map(tag => tag.innerHTML).join('\n\n/* --- Next Style Block --- */\n\n');
+            cssOutput.value = cssContent.trim();
+            styleTags.forEach(tag => tag.remove()); // Remove from the DOM tree
+
+            // --- Extract JS ---
+            const scriptTags = Array.from(doc.querySelectorAll('script:not([src])')); // Ignore external scripts
+            const jsContent = scriptTags.map(tag => tag.innerHTML).join('\n\n// --- Next Script Block ---\n\n');
+            jsOutput.value = jsContent.trim();
+            scriptTags.forEach(tag => tag.remove()); // Remove from the DOM tree
+
+            // --- Get remaining HTML ---
+            // Add link tags for the separated CSS and JS files
+            if (cssContent.trim()) {
+                const linkTag = doc.createElement('link');
+                linkTag.setAttribute('rel', 'stylesheet');
+                linkTag.setAttribute('href', 'style.css');
+                doc.head.appendChild(linkTag);
+            }
+            if (jsContent.trim()) {
+                const scriptTag = doc.createElement('script');
+                scriptTag.setAttribute('src', 'script.js');
+                scriptTag.setAttribute('defer', '');
+                doc.body.appendChild(scriptTag);
+            }
+
+            const htmlContent = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
+            htmlOutput.value = htmlContent;
+
+            // Enable/disable download and copy buttons based on content
+            downloadHtmlBtn.disabled = !htmlContent.trim();
+            copyHtmlBtn.disabled = !htmlContent.trim();
+            downloadCssBtn.disabled = !cssContent.trim();
+            copyCssBtn.disabled = !cssContent.trim();
+            downloadJsBtn.disabled = !jsContent.trim();
+            copyJsBtn.disabled = !jsContent.trim();
+            
+            showToast("Code separated successfully!", "success");
+        }
+
+        /**
+         * Triggers a file download.
+         */
+        function downloadFile(filename, content, mimeType) {
+            if (!content) {
+                showToast("Nothing to download.", "info");
+                return;
+            }
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * Copies content to the clipboard.
+         */
+        async function copyToClipboard(content, message) {
+            if (!content) {
+                showToast("Nothing to copy.", "info");
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(content);
+                showToast(message, "success");
+            } catch (err) {
+                showToast("Failed to copy to clipboard.", "error");
+            }
+        }
+
+        /**
+         * Clears all input and output fields.
+         */
+        function handleClear() {
+            codeInput.value = '';
+            htmlOutput.value = '';
+            cssOutput.value = '';
+            jsOutput.value = '';
+            downloadHtmlBtn.disabled = true;
+            copyHtmlBtn.disabled = true;
+            downloadCssBtn.disabled = true;
+            copyCssBtn.disabled = true;
+            downloadJsBtn.disabled = true;
+            copyJsBtn.disabled = true;
+            showToast("Fields cleared", "info");
+        }
+
+        // --- Event Listeners ---
+        separateBtn.addEventListener('click', handleSeparateCode);
+        clearBtn.addEventListener('click', handleClear);
+        downloadHtmlBtn.addEventListener('click', () => downloadFile('index.html', htmlOutput.value, 'text/html'));
+        downloadCssBtn.addEventListener('click', () => downloadFile('style.css', cssOutput.value, 'text/css'));
+        downloadJsBtn.addEventListener('click', () => downloadFile('script.js', jsOutput.value, 'application/javascript'));
+        copyHtmlBtn.addEventListener('click', () => copyToClipboard(htmlOutput.value, 'HTML copied!'));
+        copyCssBtn.addEventListener('click', () => copyToClipboard(cssOutput.value, 'CSS copied!'));
+        copyJsBtn.addEventListener('click', () => copyToClipboard(jsOutput.value, 'JavaScript copied!'));
+
+        // --- UI & Theme Helpers ---
+        function showToast(msg, type = 'success', duration = 3000) {
+            const toast = document.createElement("div");
+            const colors = {
+                success: 'bg-green-500 border-green-600',
+                error: 'bg-red-500 border-red-600',
+                info: 'bg-blue-500 border-blue-600'
+            };
+            toast.className = `toast-enter fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 border-l-4 max-w-md`;
+            toast.innerHTML = `<div class="flex items-center"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} mr-2"></i><span>${msg}</span></div>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        const applyTheme = (theme) => {
+            if (theme === "dark") {
+                document.documentElement.classList.add("dark");
+                moonIcon.classList.add("hidden");
+                sunIcon.classList.remove("hidden");
+            } else {
+                document.documentElement.classList.remove("dark");
+                moonIcon.classList.remove("hidden");
+                sunIcon.classList.add("hidden");
+            }
+        };
+        
+        themeToggle.addEventListener("click", () => {
+            const isDark = document.documentElement.classList.toggle("dark");
+            const newTheme = isDark ? "dark" : "light";
+            try { localStorage.setItem("theme", newTheme); } catch (err) {}
+            applyTheme(newTheme);
+        });
+
+        // --- Initial Setup ---
+        const savedTheme = (() => {
+            try { return localStorage.getItem("theme"); } catch (err) { return null; }
+        })();
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+
+        setTimeout(() => {
+            const container = document.querySelector(".container");
+            if (container) {
+                container.style.opacity = "1";
+                container.style.transform = "translateY(0)";
+            }
+        }, 100);
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Request Builder | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="httpshttps://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Initialize Tailwind CSS with dark mode and custom theme settings
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ['"Fira Code"', "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Reusing the same transition and animation styles for consistency */
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(15deg) scale(1.1);
+      }
+      /* Entrance animation for the main container */
+      .container {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease-out;
+      }
+      /* Custom styles for the API builder */
+      .tab-button {
+        @apply px-4 py-2 font-semibold text-gray-600 dark:text-gray-300 rounded-t-lg transition-colors;
+      }
+      .tab-button.active {
+        @apply bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 border-b-2 border-primary-500;
+      }
+      .tab-content {
+        @apply hidden p-4 bg-white dark:bg-gray-800 rounded-b-lg;
+      }
+      .tab-content.active {
+        @apply block;
+      }
+      /* Disabled button style */
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200"
+  >
+    <div class="container mx-auto px-4 py-8">
+      <header class="flex justify-between items-center mb-8">
+        <div>
+          <a href="DevCrate.html" class="flex items-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Dev<span class="text-primary-600 dark:text-primary-400"
+                >Crate</span
+              >
+            </h1>
+          </a>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            Create and test API requests
+          </p>
+        </div>
+        <button
+          id="themeToggle"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
+        >
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
+        </button>
+      </header>
+
+      <main>
+        <div class="max-w-7xl mx-auto space-y-8">
+          <!-- Main API Builder Component -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8"
+          >
+            <!-- Request Input Section -->
+            <div class="flex flex-col md:flex-row items-center gap-2 mb-6">
+              <select
+                id="methodSelect"
+                class="h-12 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg px-4 font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option>GET</option>
+                <option>POST</option>
+                <option>PUT</option>
+                <option>PATCH</option>
+                <option>DELETE</option>
+                <option>HEAD</option>
+                <option>OPTIONS</option>
+              </select>
+              <input
+                type="text"
+                id="urlInput"
+                placeholder="https://api.example.com/data"
+                class="h-12 font-mono w-full px-4 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+              <button
+                id="sendBtn"
+                class="h-12 px-8 w-full md:w-auto rounded-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900 transition-transform transform hover:scale-105 flex items-center justify-center"
+              >
+                <i id="sendIcon" class="fas fa-paper-plane mr-2"></i>
+                <span id="sendBtnText">Send</span>
+              </button>
+            </div>
+
+            <!-- Request Body & Headers Tabs -->
+            <div class="mb-6">
+              <div>
+                <nav class="flex mb-4">
+                  <button class="tab-button active" data-tab="headers">
+                    Headers
+                  </button>
+                  <button class="tab-button" data-tab="body" id="bodyTab">
+                    Body
+                  </button>
+                </nav>
+              </div>
+
+              <div id="headersContent" class="tab-content active">
+                <div id="headersContainer" class="space-y-2">
+                  <!-- Header rows will be injected here -->
+                </div>
+                <button
+                  id="addHeaderBtn"
+                  class="mt-4 mb-4 px-4 py-2 text-sm rounded-lg font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <i class="fas fa-plus mr-2"></i>Add Header
+                </button>
+              </div>
+              <div id="bodyContent" class="tab-content">
+                <textarea
+                  id="bodyInput"
+                  rows="8"
+                  class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder='{ "key": "value" }'
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Response Section -->
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Response
+              </h3>
+              <div
+                id="responseContainer"
+                class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 min-h-[200px]"
+              >
+                <div class="flex items-center gap-4 mb-2 text-sm">
+                  <span
+                    >Status: <strong id="statusText" class="font-mono"></strong
+                  ></span>
+                  <span
+                    >Time: <strong id="timeText" class="font-mono"></strong
+                  ></span>
+                </div>
+                <pre><code id="responseBody" class="language-json text-sm"></code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
+        <p>© 2025 DevCrate. Advanced tools for designers and developers.</p>
+      </footer>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Element Selection ---
+        const themeToggle = document.getElementById("themeToggle");
+        const moonIcon = document.getElementById("moonIcon");
+        const sunIcon = document.getElementById("sunIcon");
+        const methodSelect = document.getElementById("methodSelect");
+        const urlInput = document.getElementById("urlInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const sendIcon = document.getElementById("sendIcon");
+        const sendBtnText = document.getElementById("sendBtnText");
+        const headersContainer = document.getElementById("headersContainer");
+        const addHeaderBtn = document.getElementById("addHeaderBtn");
+        const bodyInput = document.getElementById("bodyInput");
+        const statusText = document.getElementById("statusText");
+        const timeText = document.getElementById("timeText");
+        const responseBody = document.getElementById("responseBody");
+        const tabs = document.querySelectorAll(".tab-button");
+        const tabContents = document.querySelectorAll(".tab-content");
+        const bodyTab = document.getElementById("bodyTab");
+
+        // --- Core Logic ---
+
+        /**
+         * Creates a new row for entering a request header.
+         */
+        function createHeaderRow(key = "", value = "") {
+          const div = document.createElement("div");
+          div.className = "flex items-center gap-2";
+          div.innerHTML = `
+                <input type="text" placeholder="Key" value="${key}" class="header-key font-mono w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <input type="text" placeholder="Value" value="${value}" class="header-value font-mono w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <button class="remove-header-btn text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-2"><i class="fas fa-trash"></i></button>
+            `;
+          headersContainer.appendChild(div);
+          div
+            .querySelector(".remove-header-btn")
+            .addEventListener("click", () => div.remove());
+        }
+
+        /**
+         * Handles sending the API request using the Fetch API.
+         */
+        async function handleSendRequest() {
+          const method = methodSelect.value;
+          const url = urlInput.value.trim();
+
+          if (!url) {
+            showToast("URL cannot be empty.", "error");
+            return;
+          }
+
+          // --- UI state: Loading ---
+          sendBtn.disabled = true;
+          sendBtnText.textContent = "Sending...";
+          sendIcon.className = "fas fa-spinner fa-spin mr-2";
+          statusText.textContent = "";
+          timeText.textContent = "";
+          responseBody.textContent = "Loading...";
+
+          const headers = new Headers();
+          document
+            .querySelectorAll("#headersContainer .flex")
+            .forEach((row) => {
+              const key = row.querySelector(".header-key").value.trim();
+              const value = row.querySelector(".header-value").value.trim();
+              if (key) {
+                headers.append(key, value);
+              }
+            });
+
+          const requestOptions = {
+            method: method,
+            headers: headers,
+          };
+
+          // Add body for relevant methods
+          if (["POST", "PUT", "PATCH"].includes(method)) {
+            try {
+              // Try to parse to ensure it's valid JSON, but send as string
+              JSON.parse(bodyInput.value);
+              requestOptions.body = bodyInput.value;
+            } catch (e) {
+              showToast("Request body contains invalid JSON.", "error");
+              resetSendButton();
+              return;
+            }
+          }
+
+          const startTime = performance.now();
+
+          try {
+            const response = await fetch(url, requestOptions);
+            const endTime = performance.now();
+
+            // --- Update UI with response ---
+            const status = `${response.status} ${response.statusText}`;
+            const time = `${Math.round(endTime - startTime)} ms`;
+
+            let statusColor = "text-gray-500";
+            if (response.status >= 200 && response.status < 300)
+              statusColor = "text-green-500";
+            if (response.status >= 400) statusColor = "text-red-500";
+
+            statusText.innerHTML = `<span class="${statusColor}">${status}</span>`;
+            timeText.textContent = time;
+
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const json = await response.json();
+              responseBody.textContent = JSON.stringify(json, null, 2);
+            } else {
+              const text = await response.text();
+              responseBody.textContent = text || "(No response body)";
+            }
+          } catch (error) {
+            // Handle network errors (e.g., CORS, DNS)
+            statusText.innerHTML = `<span class="text-red-500">Request Failed</span>`;
+            timeText.textContent = "-";
+            responseBody.textContent = `An error occurred. This could be a CORS issue, a network problem, or an invalid URL.\n\nError: ${error.message}`;
+          } finally {
+            resetSendButton();
+          }
+        }
+
+        function resetSendButton() {
+          sendBtn.disabled = false;
+          sendBtnText.textContent = "Send";
+          sendIcon.className = "fas fa-paper-plane mr-2";
+        }
+
+        function handleMethodChange() {
+          const method = methodSelect.value;
+          const hasBody = ["POST", "PUT", "PATCH"].includes(method);
+          bodyTab.style.display = hasBody ? "inline-block" : "none";
+
+          // If the active tab is now hidden, switch to the headers tab
+          if (
+            !hasBody &&
+            document.querySelector('.tab-button[data-tab="body"].active')
+          ) {
+            switchTab("headers");
+          }
+        }
+
+        /**
+         * Switches the active tab.
+         * @param {string} tabName - The name of the tab to activate.
+         */
+        function switchTab(tabName) {
+          tabs.forEach((tab) => {
+            tab.classList.toggle("active", tab.dataset.tab === tabName);
+          });
+          tabContents.forEach((content) => {
+            content.classList.toggle(
+              "active",
+              content.id === `${tabName}Content`
+            );
+          });
+        }
+
+        // --- Event Listeners ---
+        sendBtn.addEventListener("click", handleSendRequest);
+        addHeaderBtn.addEventListener("click", () => createHeaderRow());
+        methodSelect.addEventListener("change", handleMethodChange);
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+        });
+
+        // Delegate event for removing headers
+        headersContainer.addEventListener("click", (e) => {
+          if (e.target.closest(".remove-header-btn")) {
+            e.target.closest(".flex").remove();
+          }
+        });
+
+        // --- UI & Theme Helpers ---
+        function showToast(msg, type = "success", duration = 2500) {
+          const toast = document.createElement("div");
+          const colors = {
+            success: "bg-green-500",
+            error: "bg-red-500",
+            info: "bg-blue-500",
+          };
+          toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
+          toast.textContent = msg;
+          document.body.appendChild(toast);
+
+          setTimeout(() => {
+            toast.remove();
+          }, duration);
+        }
+
+        const applyTheme = (theme) => {
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+            if (moonIcon) moonIcon.classList.add("hidden");
+            if (sunIcon) sunIcon.classList.remove("hidden");
+          } else {
+            document.documentElement.classList.remove("dark");
+            if (moonIcon) moonIcon.classList.remove("hidden");
+            if (sunIcon) sunIcon.classList.add("hidden");
+          }
+        };
+
+        themeToggle.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          const newTheme = isDark ? "dark" : "light";
+          try {
+            localStorage.setItem("theme", newTheme);
+          } catch (err) {
+            /* ignore */
+          }
+          applyTheme(newTheme);
+        });
+
+        // --- Initial Setup ---
+        const savedTheme = (() => {
+          try {
+            return localStorage.getItem("theme");
+          } catch (err) {
+            return null;
+          }
+        })();
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+
+        applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+
+        // Add one default header row
+        createHeaderRow("Content-Type", "application/json");
+
+        // Initial check for method
+        handleMethodChange();
+
+        // Entrance animation
+        setTimeout(() => {
+          const container = document.querySelector(".container");
+          if (container) {
+            container.style.opacity = "1";
+            container.style.transform = "translateY(0)";
+          }
+        }, 100);
+      });
+    </script>
+  </body>
+</html>

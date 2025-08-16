@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON to CSV Converter | DevCrate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <script>
+      // Initialize Tailwind CSS with dark mode and custom theme settings
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['"Fira Code"', "monospace"],
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Reusing the same transition and animation styles for consistency */
+      .theme-toggle {
+        transition: all 0.3s ease;
+      }
+      .theme-toggle:hover {
+        transform: rotate(15deg) scale(1.1);
+      }
+      /* Entrance animation for the main container */
+      .container {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease-out;
+      }
+      /* Style for the error message container */
+      .error-message {
+          transition: opacity 0.3s ease-in-out;
+      }
+      /* Disabled button style */
+      button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+      }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
+    <div class="container mx-auto px-4 py-8">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                 <a href="DevCrate.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                      Dev<span class="text-primary-600 dark:text-primary-400"
+                        >Crate</span
+                      >
+                    </h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    Effortless JSON to CSV Conversion
+                </p>
+            </div>
+            <button
+                id="themeToggle"
+                class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
+            >
+                <i id="moonIcon" class="fas fa-moon"></i>
+                <i id="sunIcon" class="fas fa-sun hidden"></i>
+            </button>
+        </header>
+
+        <main>
+            <div class="max-w-7xl mx-auto space-y-8">
+                <!-- Main Converter Component -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                        <i class="fas fa-file-csv mr-2"></i>JSON to CSV Converter
+                    </h2>
+
+                    <!-- Input and Output Textareas -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- JSON Input -->
+                        <div>
+                            <label for="jsonInput" class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2 block">JSON Input</label>
+                            <textarea
+                                id="jsonInput"
+                                rows="15"
+                                class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:border-primary-500 transition"
+                                placeholder='[
+  {
+    "id": 1,
+    "name": "Product A",
+    "price": 19.99,
+    "inStock": true
+  },
+  {
+    "id": 2,
+    "name": "Product B",
+    "price": 25.50,
+    "inStock": false
+  }
+]'
+                            ></textarea>
+                            <!-- Error Message Display -->
+                            <div id="errorContainer" class="error-message mt-2 text-sm text-red-600 dark:text-red-400 font-medium opacity-0 min-h-[1rem]"></div>
+                        </div>
+
+                        <!-- CSV Output -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="csvOutput" class="text-lg font-semibold text-gray-700 dark:text-gray-300">CSV Output</label>
+                                <button id="copyBtn" class="text-gray-500 hover:text-primary-500 transition-colors" title="Copy CSV to clipboard">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
+                            <textarea
+                                id="csvOutput"
+                                rows="15"
+                                readonly
+                                class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg cursor-not-allowed focus:outline-none"
+                                placeholder="CSV output will appear here..."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Options and Action Buttons -->
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
+                        <!-- Separator Options -->
+                        <div class="flex items-center gap-2">
+                            <label for="separator" class="font-medium text-gray-700 dark:text-gray-300">Separator:</label>
+                            <select id="separator" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value=",">Comma (,)</option>
+                                <option value=";">Semicolon (;)</option>
+                                <option value="|">Pipe (|)</option>
+                                <option value="\t">Tab (\t)</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                            <input type="text" id="customSeparator" placeholder="Custom" class="hidden w-20 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        
+                        <!-- Main Action Buttons -->
+                        <div class="flex items-center gap-4">
+                            <button
+                                id="convertBtn"
+                                class="px-8 py-3 rounded-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900 transition-transform transform hover:scale-105"
+                            >
+                               <i class="fas fa-sync-alt mr-2"></i> Convert
+                            </button>
+                             <button
+                                id="downloadBtn"
+                                disabled
+                                class="px-6 py-3 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 dark:disabled:bg-green-800 transition-colors"
+                            >
+                                <i class="fas fa-download mr-2"></i> Download CSV
+                            </button>
+                             <button
+                                id="clearBtn"
+                                class="px-6 py-2 rounded-lg font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>© 2025 DevCrate. Advanced tools for designers and developers.</p>
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- Element Selection ---
+        const themeToggle = document.getElementById("themeToggle");
+        const moonIcon = document.getElementById("moonIcon");
+        const sunIcon = document.getElementById("sunIcon");
+        const jsonInput = document.getElementById("jsonInput");
+        const csvOutput = document.getElementById("csvOutput");
+        const convertBtn = document.getElementById("convertBtn");
+        const copyBtn = document.getElementById("copyBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const separatorSelect = document.getElementById("separator");
+        const customSeparatorInput = document.getElementById("customSeparator");
+        const errorContainer = document.getElementById("errorContainer");
+
+        // --- Core Conversion Logic ---
+
+        /**
+         * Sanitizes a single field for CSV format based on the chosen separator.
+         * @param {any} field - The data to be sanitized.
+         * @param {string} separator - The CSV delimiter being used.
+         * @returns {string} The sanitized field as a string.
+         */
+        function sanitizeCsvField(field, separator) {
+            const fieldStr = String(field ?? ''); // Handle null or undefined fields
+            const needsQuoting = fieldStr.includes(separator) || fieldStr.includes('"') || fieldStr.includes('\n');
+            
+            if (needsQuoting) {
+                const escapedStr = fieldStr.replace(/"/g, '""');
+                return `"${escapedStr}"`;
+            }
+            return fieldStr;
+        }
+
+        /**
+         * Converts a JavaScript array of objects into a CSV string.
+         * @param {Array<Object>} data - The array of objects to convert.
+         * @param {string} separator - The delimiter to use for the CSV.
+         * @returns {string} The resulting CSV string.
+         */
+        function jsonToCsv(data, separator) {
+            if (data.length === 0) {
+                return "";
+            }
+
+            const headers = Object.keys(data[0]);
+            const sanitizedHeaders = headers.map(h => sanitizeCsvField(h, separator)).join(separator);
+
+            const rows = data.map(obj => {
+                return headers.map(header => {
+                    return sanitizeCsvField(obj[header], separator);
+                }).join(separator);
+            });
+
+            return [sanitizedHeaders, ...rows].join('\n');
+        }
+
+        // --- Event Handlers ---
+
+        /**
+         * Handles the click event for the 'Convert' button.
+         */
+        function handleConvert() {
+            clearError();
+            const jsonString = jsonInput.value.trim();
+            
+            let separator = separatorSelect.value;
+            if (separator === 'custom') {
+                separator = customSeparatorInput.value;
+                if (!separator) {
+                    displayError("Custom separator cannot be empty.");
+                    return;
+                }
+            }
+            
+            if (!jsonString) {
+                displayError("JSON input is empty.");
+                csvOutput.value = "";
+                downloadBtn.disabled = true;
+                return;
+            }
+
+            try {
+                const data = JSON.parse(jsonString);
+
+                if (!Array.isArray(data)) {
+                    // It's a valid JSON object, but not an array.
+                    displayArrayError(); // Show specific error and button
+                    csvOutput.value = "";
+                    downloadBtn.disabled = true;
+                    return; // Stop processing
+                }
+
+                const csvString = jsonToCsv(data, separator);
+                csvOutput.value = csvString;
+                downloadBtn.disabled = csvString.length === 0;
+                if (csvString.length > 0) {
+                   showToast("Conversion successful!", "success");
+                }
+            } catch (error) {
+                displayError("Invalid JSON format. Please check for syntax errors.");
+                csvOutput.value = "";
+                downloadBtn.disabled = true;
+            }
+        }
+
+        /**
+         * Handles the click event for the 'Download' button.
+         */
+        function handleDownload() {
+            const csvContent = csvOutput.value;
+            if (!csvContent || downloadBtn.disabled) {
+                showToast("Nothing to download.", "info");
+                return;
+            }
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "data.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Download started!", "success");
+        }
+
+        /**
+         * Handles the click event for the 'Copy' button.
+         */
+        function handleCopy() {
+            const csvString = csvOutput.value;
+            if (csvString) {
+                copyToClipboard(csvString, "CSV copied to clipboard!");
+
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check text-green-500 mr-1"></i> Copied';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                }, 1500);
+            } else {
+                showToast("Nothing to copy.", "info");
+            }
+        }
+
+        /**
+         * Handles the click event for the 'Clear' button.
+         */
+        function handleClear() {
+            jsonInput.value = "";
+            csvOutput.value = "";
+            downloadBtn.disabled = true;
+            clearError();
+            showToast("Cleared fields.", "info");
+        }
+        
+        /**
+         * Toggles the visibility of the custom separator input field.
+         */
+        function handleSeparatorChange() {
+            if (separatorSelect.value === 'custom') {
+                customSeparatorInput.classList.remove('hidden');
+                customSeparatorInput.focus();
+            } else {
+                customSeparatorInput.classList.add('hidden');
+            }
+        }
+
+        // --- UI & Error Helpers ---
+
+        /**
+         * Displays a specific error for non-array JSON objects with a fix button.
+         */
+        function displayArrayError() {
+            errorContainer.innerHTML = ''; // Clear previous content
+
+            const errorMessage = document.createElement('span');
+            errorMessage.textContent = 'Your JSON requires wrapping in [ ]. ';
+
+            const addButton = document.createElement('button');
+            addButton.textContent = 'Add them';
+            addButton.className = 'font-semibold underline text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none';
+            addButton.onclick = () => {
+                const currentJson = jsonInput.value.trim();
+                if (currentJson) {
+                    jsonInput.value = `[${currentJson}]`;
+                    handleConvert(); // Re-run conversion after fixing
+                }
+            };
+
+            errorContainer.appendChild(errorMessage);
+            errorContainer.appendChild(addButton);
+            errorContainer.style.opacity = '1';
+        }
+
+        /**
+         * Displays a generic error message in the dedicated error container.
+         * @param {string} message - The error message to display.
+         */
+        function displayError(message) {
+            errorContainer.innerHTML = `⚠️ ${message}`;
+            errorContainer.style.opacity = '1';
+        }
+
+        /**
+         * Clears the error message from the container.
+         */
+        function clearError() {
+            errorContainer.innerHTML = '';
+            errorContainer.style.opacity = '0';
+        }
+
+        /**
+         * Asynchronously copies text to the user's clipboard.
+         * @param {string} text - The text to be copied.
+         * @param {string} message - The message to show in the toast notification on success.
+         */
+        function copyToClipboard(text, message) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast(message, "success"))
+                    .catch(() => showToast("Copy failed. Please try again.", "error"));
+            } else {
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand("copy");
+                    showToast(message, "success");
+                } catch (err) {
+                    showToast("Copy failed. Please try again.", "error");
+                }
+                document.body.removeChild(ta);
+            }
+        }
+        
+        /**
+         * Displays a temporary notification message (toast).
+         * @param {string} msg - The message to display.
+         * @param {string} type - The type of toast ('success', 'error', 'info').
+         */
+        function showToast(msg, type = 'success', duration = 2000) {
+            const toast = document.createElement("div");
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+
+        // Attach event listeners
+        convertBtn.addEventListener("click", handleConvert);
+        downloadBtn.addEventListener("click", handleDownload);
+        copyBtn.addEventListener("click", handleCopy);
+        clearBtn.addEventListener("click", handleClear);
+        separatorSelect.addEventListener('change', handleSeparatorChange);
+
+        // --- Theme Toggle Logic ---
+        const applyTheme = (theme) => {
+            if (theme === "dark") {
+                document.documentElement.classList.add("dark");
+                if (moonIcon) moonIcon.classList.add("hidden");
+                if (sunIcon) sunIcon.classList.remove("hidden");
+            } else {
+                document.documentElement.classList.remove("dark");
+                if (moonIcon) moonIcon.classList.remove("hidden");
+                if (sunIcon) sunIcon.classList.add("hidden");
+            }
+        };
+        
+        themeToggle.addEventListener("click", () => {
+            const isDark = document.documentElement.classList.toggle("dark");
+            const newTheme = isDark ? "dark" : "light";
+            try {
+                localStorage.setItem("theme", newTheme);
+            } catch (err) { /* ignore */ }
+            applyTheme(newTheme);
+        });
+
+        // --- Initial Setup ---
+        const savedTheme = (() => {
+            try {
+                return localStorage.getItem("theme");
+            } catch (err) {
+                return null;
+            }
+        })();
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme(prefersDark ? "dark" : "light");
+        }
+
+        setTimeout(() => {
+            const container = document.querySelector(".container");
+            if (container) {
+                container.style.opacity = "1";
+                container.style.transform = "translateY(0)";
+            }
+        }, 100);
+    });
+    </script>
+</body>
+</html>
