@@ -71,6 +71,8 @@
         opacity: 1;
       }
     </style>
+    <!-- Load theme script early to prevent flash -->
+    <script src="theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8">
@@ -350,40 +352,6 @@
           }
         }
 
-        // --- Theme Toggling Logic ---
-        const themeToggle = document.getElementById("themeToggle");
-        const htmlElement = document.documentElement;
-        const moonIcon = document.getElementById("moonIcon");
-        const sunIcon = document.getElementById("sunIcon");
-
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            htmlElement.classList.add("dark");
-            moonIcon.classList.add("hidden");
-            sunIcon.classList.remove("hidden");
-          } else {
-            htmlElement.classList.remove("dark");
-            moonIcon.classList.remove("hidden");
-            sunIcon.classList.add("hidden");
-          }
-        };
-
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-          applyTheme(savedTheme);
-        } else {
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-          ).matches;
-          applyTheme(prefersDark ? "dark" : "light");
-        }
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = htmlElement.classList.toggle("dark");
-          const newTheme = isDark ? "dark" : "light";
-          localStorage.setItem("theme", newTheme);
-          applyTheme(newTheme);
-        });
 
         // --- Copy Functionality ---
         document.body.addEventListener("click", (e) => {

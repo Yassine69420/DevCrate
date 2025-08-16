@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -96,6 +96,8 @@
       .badge-aa { @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200; }
       .badge-fail { @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200; }
     </style>
+    <!-- Load theme script early to prevent flash -->
+    <script src="theme.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
     <div class="container mx-auto px-4 py-8">
@@ -822,45 +824,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Theme Toggle ---
-  const applyTheme = (theme) => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-      if (moonIcon) moonIcon.classList.add("hidden");
-      if (sunIcon) sunIcon.classList.remove("hidden");
-    } else {
-      document.documentElement.classList.remove("dark");
-      if (moonIcon) moonIcon.classList.remove("hidden");
-      if (sunIcon) sunIcon.classList.add("hidden");
-    }
-  };
-
-  themeToggle &&
-    themeToggle.addEventListener("click", () => {
-      const isDark = document.documentElement.classList.toggle("dark");
-      const newTheme = isDark ? "dark" : "light";
-      try {
-        localStorage.setItem("theme", newTheme);
-      } catch (err) {
-        // ignore localStorage errors (private mode)
-      }
-      applyTheme(newTheme);
-    });
-
-  const savedTheme = (() => {
-    try {
-      return localStorage.getItem("theme");
-    } catch (err) {
-      return null;
-    }
-  })();
-  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  } else {
-    applyTheme(prefersDark ? "dark" : "light");
-  }
 
   // --- Initial Setup ---
   if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(textColorPicker.value)) {

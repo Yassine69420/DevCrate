@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -56,6 +56,8 @@
       .nav-link { @apply text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium; }
       .nav-link.active { @apply text-primary-600 dark:text-primary-400; }
     </style>
+    <!-- Load theme script early to prevent flash -->
+    <script src="theme.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
@@ -311,31 +313,7 @@
             }, duration);
         }
 
-        const applyTheme = (theme) => {
-            if (theme === "dark") {
-                document.documentElement.classList.add("dark");
-                moonIcon.classList.add("hidden");
-                sunIcon.classList.remove("hidden");
-            } else {
-                document.documentElement.classList.remove("dark");
-                moonIcon.classList.remove("hidden");
-                sunIcon.classList.add("hidden");
-            }
-        };
-        
-        themeToggle.addEventListener("click", () => {
-            const isDark = document.documentElement.classList.toggle("dark");
-            const newTheme = isDark ? "dark" : "light";
-            try { localStorage.setItem("theme", newTheme); } catch (err) {}
-            applyTheme(newTheme);
-        });
-
         // --- Initial Setup ---
-        const savedTheme = (() => {
-            try { return localStorage.getItem("theme"); } catch (err) { return null; }
-        })();
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
 
         setTimeout(() => {
             const container = document.querySelector(".container");
