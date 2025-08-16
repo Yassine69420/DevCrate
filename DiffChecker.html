@@ -274,21 +274,17 @@
             });
 
             const applyTheme = (theme) => {
-                document.documentElement.classList.toggle("dark", theme === "dark");
                 if (diffOutput.innerHTML.trim()) {
                     generateDiff();
                 }
             };
 
             themeToggle.addEventListener("click", () => {
-                const isDark = document.documentElement.classList.contains("dark");
-                const newTheme = !isDark ? "dark" : "light";
-                localStorage.setItem("theme", newTheme);
-                applyTheme(newTheme);
+                if (diffOutput.innerHTML.trim()) {
+                    generateDiff();
+                }
             });
 
-            const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-            applyTheme(savedTheme);
         };
 
         // --- Robust library loading ---
@@ -315,5 +311,6 @@
         init();
       });
     </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

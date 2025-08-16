@@ -40,6 +40,7 @@
         },
       };
     </script>
+    <script src="assets/js/theme.js"></script>
     <style>
       .theme-toggle { transition: all 0.3s ease; }
       .theme-toggle:hover { transform: rotate(30deg); }
@@ -71,8 +72,8 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
@@ -230,5 +231,6 @@
         processCron();
       });
     </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

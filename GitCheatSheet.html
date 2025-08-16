@@ -350,41 +350,6 @@
           }
         }
 
-        // --- Theme Toggling Logic ---
-        const themeToggle = document.getElementById("themeToggle");
-        const htmlElement = document.documentElement;
-        const moonIcon = document.getElementById("moonIcon");
-        const sunIcon = document.getElementById("sunIcon");
-
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            htmlElement.classList.add("dark");
-            moonIcon.classList.add("hidden");
-            sunIcon.classList.remove("hidden");
-          } else {
-            htmlElement.classList.remove("dark");
-            moonIcon.classList.remove("hidden");
-            sunIcon.classList.add("hidden");
-          }
-        };
-
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-          applyTheme(savedTheme);
-        } else {
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-          ).matches;
-          applyTheme(prefersDark ? "dark" : "light");
-        }
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = htmlElement.classList.toggle("dark");
-          const newTheme = isDark ? "dark" : "light";
-          localStorage.setItem("theme", newTheme);
-          applyTheme(newTheme);
-        });
-
         // --- Copy Functionality ---
         document.body.addEventListener("click", (e) => {
           const copyBtn = e.target.closest(".copy-btn");
@@ -413,5 +378,6 @@
         });
       });
     </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

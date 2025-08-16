@@ -475,21 +475,6 @@
       );
       runTest();
 
-      themeToggle.addEventListener("click", () => {
-        document.documentElement.classList.toggle("dark");
-        localStorage.setItem(
-          "theme",
-          document.documentElement.classList.contains("dark") ? "dark" : "light"
-        );
-      });
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!localStorage.getItem("theme") &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-      }
-
       clearBtn.addEventListener("click", () => {
         testStringInput.value = "";
         runTest();
@@ -515,5 +500,6 @@
         }
       });
     </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

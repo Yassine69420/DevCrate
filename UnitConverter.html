@@ -171,39 +171,14 @@
                
             };
             
-            /**
-             * Applies the selected theme (light/dark) to the document.
-             * @param {string} theme - The theme to apply ('dark' or 'light').
-             */
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-
-            /**
-             * Toggles the theme and saves the preference to localStorage.
-             */
-            const toggleTheme = () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            };
-
             // --- Event Listeners ---
             unitCategory.addEventListener('change', populateUnits);
             fromUnit.addEventListener('change', convert);
             toUnit.addEventListener('change', convert);
             inputValue.addEventListener('input', convert);
-            themeToggle.addEventListener('click', toggleTheme);
             
             // --- Initialization ---
             
-            // Set the theme based on saved preference or system setting
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            applyTheme(savedTheme);
-
             // Set a default value for the input
             inputValue.value = '1024';
             
@@ -211,5 +186,6 @@
             populateUnits();
         });
     </script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>

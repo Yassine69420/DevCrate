@@ -393,28 +393,10 @@ Start typing in the left pane to see the magic happen!
             });
         });
 
-        // --- Theme Toggle ---
-        themeToggle.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            document.documentElement.classList.contains("dark")
-              ? "dark"
-              : "light"
-          );
-        });
-
-        if (
-          localStorage.getItem("theme") === "dark" ||
-          (!localStorage.getItem("theme") &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
-
         // --- Initial Render ---
         updatePreview();
       });
     </script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>
