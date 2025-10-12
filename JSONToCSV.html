@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -64,16 +64,17 @@
           opacity: 0.6;
       }
     </style>
+    <script src="assets/js/Theme.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200">
     <div class="container mx-auto px-4 py-8">
         <header class="flex justify-between items-center mb-8">
             <div>
-                 <a href="DevCrate.html" class="flex items-center">
+                <a href="DevCrate.html" class="flex items-center">
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                      Dev<span class="text-primary-600 dark:text-primary-400"
-                        >Crate</span
-                      >
+                        Dev<span class="text-primary-600 dark:text-primary-400"
+                            >Crate</span
+                        >
                     </h1>
                 </a>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">
@@ -105,7 +106,7 @@
                             <textarea
                                 id="jsonInput"
                                 rows="15"
-                                class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:border-primary-500 transition"
+                                class="font-mono w-full p-4 bg-gray-100 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:border-primary-500 "
                                 placeholder='[
   {
     "id": 1,
@@ -456,44 +457,7 @@
         clearBtn.addEventListener("click", handleClear);
         separatorSelect.addEventListener('change', handleSeparatorChange);
 
-        // --- Theme Toggle Logic ---
-        const applyTheme = (theme) => {
-            if (theme === "dark") {
-                document.documentElement.classList.add("dark");
-                if (moonIcon) moonIcon.classList.add("hidden");
-                if (sunIcon) sunIcon.classList.remove("hidden");
-            } else {
-                document.documentElement.classList.remove("dark");
-                if (moonIcon) moonIcon.classList.remove("hidden");
-                if (sunIcon) sunIcon.classList.add("hidden");
-            }
-        };
-        
-        themeToggle.addEventListener("click", () => {
-            const isDark = document.documentElement.classList.toggle("dark");
-            const newTheme = isDark ? "dark" : "light";
-            try {
-                localStorage.setItem("theme", newTheme);
-            } catch (err) { /* ignore */ }
-            applyTheme(newTheme);
-        });
-
-        // --- Initial Setup ---
-        const savedTheme = (() => {
-            try {
-                return localStorage.getItem("theme");
-            } catch (err) {
-                return null;
-            }
-        })();
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-        if (savedTheme) {
-            applyTheme(savedTheme);
-        } else {
-            applyTheme(prefersDark ? "dark" : "light");
-        }
-
+        // --- Initial Animation ---
         setTimeout(() => {
             const container = document.querySelector(".container");
             if (container) {

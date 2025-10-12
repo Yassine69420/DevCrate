@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,7 @@
         .form-input, .form-select { font-family: "Fira Code", monospace; }
         body { font-family: 'Inter', sans-serif; }
     </style>
+    <script src="assets/js/Theme.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -45,8 +46,8 @@
                 <p class="text-gray-500 dark:text-gray-400 mt-1">A Modern Unit Converter</p>
             </div>
             <button id="themeToggle" class="theme-toggle text-xl bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:block"></i>
+                <i id="moonIcon" class="fas fa-moon"></i>
+                <i id="sunIcon" class="fas fa-sun hidden"></i>
             </button>
         </header>
 
@@ -171,39 +172,14 @@
                
             };
             
-            /**
-             * Applies the selected theme (light/dark) to the document.
-             * @param {string} theme - The theme to apply ('dark' or 'light').
-             */
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-
-            /**
-             * Toggles the theme and saves the preference to localStorage.
-             */
-            const toggleTheme = () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            };
-
             // --- Event Listeners ---
             unitCategory.addEventListener('change', populateUnits);
             fromUnit.addEventListener('change', convert);
             toUnit.addEventListener('change', convert);
             inputValue.addEventListener('input', convert);
-            themeToggle.addEventListener('click', toggleTheme);
             
             // --- Initialization ---
             
-            // Set the theme based on saved preference or system setting
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            applyTheme(savedTheme);
-
             // Set a default value for the input
             inputValue.value = '1024';
             

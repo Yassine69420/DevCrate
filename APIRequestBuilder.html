@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -76,6 +76,7 @@
         opacity: 0.6;
       }
     </style>
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body
     class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200"
@@ -396,43 +397,6 @@
             toast.remove();
           }, duration);
         }
-
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-            if (moonIcon) moonIcon.classList.add("hidden");
-            if (sunIcon) sunIcon.classList.remove("hidden");
-          } else {
-            document.documentElement.classList.remove("dark");
-            if (moonIcon) moonIcon.classList.remove("hidden");
-            if (sunIcon) sunIcon.classList.add("hidden");
-          }
-        };
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          const newTheme = isDark ? "dark" : "light";
-          try {
-            localStorage.setItem("theme", newTheme);
-          } catch (err) {
-            /* ignore */
-          }
-          applyTheme(newTheme);
-        });
-
-        // --- Initial Setup ---
-        const savedTheme = (() => {
-          try {
-            return localStorage.getItem("theme");
-          } catch (err) {
-            return null;
-          }
-        })();
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
-
-        applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
 
         // Add one default header row
         createHeaderRow("Content-Type", "application/json");

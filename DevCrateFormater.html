@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,10 @@
     <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
     <script src="https://unpkg.com/prettier@2.8.8/parser-postcss.js"></script>
     <script src="https://unpkg.com/prettier@2.8.8/parser-typescript.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-markdown.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-yaml.js"></script>
     <script src="https://unpkg.com/@prettier/plugin-php@0.19.6/dist/standalone.js"></script>
     <script src="https://unpkg.com/prettier-plugin-java/dist/standalone.js"></script>
-    <script src="https://unpkg.com/prettier-plugin-sql/dist/standalone.js"></script>
 
     <script>
       // Tailwind CSS Configuration
@@ -65,6 +66,11 @@
       .btn-secondary:hover {
         transform: translateY(-1px);
       }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        transform: none;
+        cursor: not-allowed;
+      }
       .code-editor {
         min-height: 300px;
         font-family: "Fira Code", "Courier New", monospace;
@@ -83,7 +89,16 @@
       .animate-pulse-fast {
         animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
+      .language-suggestion {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin: 8px 0;
+        font-size: 0.875rem;
+      }
     </style>
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -105,8 +120,8 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
@@ -132,16 +147,41 @@
                   <option value="typescript">TypeScript</option>
                   <option value="html">HTML</option>
                   <option value="css">CSS</option>
+                  <option value="scss">SCSS</option>
+                  <option value="less">LESS</option>
+                  <option value="json">JSON</option>
+                  <option value="markdown">Markdown</option>
+                  <option value="yaml">YAML</option>
+                  <option value="vue">Vue</option>
+                  <option value="angular">Angular</option>
                   <option value="php">PHP</option>
                   <option value="java">Java</option>
-                  <option value="sql">SQL</option>
                 </select>
+                <button
+                  id="autoDetectBtn"
+                  class="text-gray-500 hover:text-primary-500 px-2 py-1 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                  title="Auto-detect language"
+                >
+                  <i class="fas fa-magic"></i>
+                </button>
                 <button
                   id="clearBtn"
                   class="text-gray-500 hover:text-primary-500"
                   title="Clear input"
                 >
                   <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div id="languageSuggestion" class="hidden px-4 py-2">
+              <div class="language-suggestion text-blue-700 dark:text-blue-300">
+                <i class="fas fa-lightbulb mr-2"></i>
+                <span id="suggestionText"></span>
+                <button id="applySuggestion" class="ml-2 text-primary-600 dark:text-primary-400 hover:underline">
+                  Apply
+                </button>
+                <button id="dismissSuggestion" class="ml-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  ×
                 </button>
               </div>
             </div>
@@ -272,7 +312,6 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- DOM Elements ---
-        const themeToggle = document.getElementById("themeToggle");
         const inputCode = document.getElementById("inputCode");
         const outputCode = document.getElementById("outputCode");
         const languageSelect = document.getElementById("languageSelect");
@@ -280,22 +319,225 @@
         const clearBtn = document.getElementById("clearBtn");
         const copyBtn = document.getElementById("copyBtn");
         const downloadBtn = document.getElementById("downloadBtn");
+        const autoDetectBtn = document.getElementById("autoDetectBtn");
+        const languageSuggestion = document.getElementById("languageSuggestion");
+        const suggestionText = document.getElementById("suggestionText");
+        const applySuggestion = document.getElementById("applySuggestion");
+        const dismissSuggestion = document.getElementById("dismissSuggestion");
 
-        // --- Prettier Plugins ---
-        // These are loaded from the script tags in the <head> and available on the window object.
-        const prettierPlugins = window.prettierPlugins;
+        let suggestedParser = null;
+
+        // --- Language Detection ---
+        const detectLanguage = (code) => {
+          const trimmedCode = code.trim();
+          
+          // HTML detection
+          if (trimmedCode.includes('<!DOCTYPE') || 
+              (trimmedCode.includes('<html') && trimmedCode.includes('</html>')) ||
+              (trimmedCode.includes('<div') || trimmedCode.includes('<span') || 
+               trimmedCode.includes('<p>') || trimmedCode.includes('<h1'))) {
+            return 'html';
+          }
+          
+          // JSON detection
+          if ((trimmedCode.startsWith('{') && trimmedCode.endsWith('}')) ||
+              (trimmedCode.startsWith('[') && trimmedCode.endsWith(']'))) {
+            try {
+              JSON.parse(trimmedCode);
+              return 'json';
+            } catch (e) {
+              // Not JSON, continue detection
+            }
+          }
+          
+          // CSS detection
+          if (trimmedCode.includes('{') && trimmedCode.includes('}') && 
+              (trimmedCode.includes(':') || trimmedCode.match(/[.#]\w+\s*{/))) {
+            return 'css';
+          }
+          
+          // SCSS detection
+          if (trimmedCode.includes('$') && trimmedCode.includes('{') ||
+              trimmedCode.includes('@mixin') || trimmedCode.includes('@include')) {
+            return 'scss';
+          }
+          
+          // YAML detection
+          if (trimmedCode.includes('---') || 
+              trimmedCode.match(/^[\w-]+:\s*[\w\s-]+$/m)) {
+            return 'yaml';
+          }
+          
+          // Markdown detection
+          if (trimmedCode.includes('#') || trimmedCode.includes('**') ||
+              trimmedCode.includes('```') || trimmedCode.includes('[](')) {
+            return 'markdown';
+          }
+          
+          // PHP detection
+          if (trimmedCode.includes('<?php') || trimmedCode.includes('<?=')) {
+            return 'php';
+          }
+          
+          // TypeScript detection
+          if (trimmedCode.includes('interface ') || trimmedCode.includes('type ') ||
+              trimmedCode.includes(': string') || trimmedCode.includes(': number') ||
+              trimmedCode.includes('<T>') || trimmedCode.includes('enum ')) {
+            return 'typescript';
+          }
+          
+          // Java detection
+          if (trimmedCode.includes('public class') || trimmedCode.includes('private ') ||
+              trimmedCode.includes('public static void main') || 
+              trimmedCode.includes('System.out.println')) {
+            return 'java';
+          }
+          
+          // JavaScript detection (default for code with functions/variables)
+          if (trimmedCode.includes('function') || trimmedCode.includes('const ') ||
+              trimmedCode.includes('let ') || trimmedCode.includes('var ') ||
+              trimmedCode.includes('=>') || trimmedCode.includes('console.log')) {
+            return 'babel';
+          }
+          
+          return null;
+        };
+
+        const showLanguageSuggestion = (detectedLang) => {
+          const languageNames = {
+            'babel': 'JavaScript',
+            'typescript': 'TypeScript',
+            'html': 'HTML',
+            'css': 'CSS',
+            'scss': 'SCSS',
+            'json': 'JSON',
+            'yaml': 'YAML',
+            'markdown': 'Markdown',
+            'php': 'PHP',
+            'java': 'Java'
+          };
+          
+          if (detectedLang && detectedLang !== languageSelect.value) {
+            suggestedParser = detectedLang;
+            suggestionText.textContent = `Detected ${languageNames[detectedLang]} code. Switch to ${languageNames[detectedLang]}?`;
+            languageSuggestion.classList.remove('hidden');
+          }
+        };
+
+        // --- Parser Configuration ---
+        const getParserConfig = (parser) => {
+          const configs = {
+            'babel': {
+              parser: 'babel',
+              plugins: ['babel']
+            },
+            'typescript': {
+              parser: 'typescript',
+              plugins: ['typescript']
+            },
+            'html': {
+              parser: 'html',
+              plugins: ['html']
+            },
+            'css': {
+              parser: 'css',
+              plugins: ['postcss']
+            },
+            'scss': {
+              parser: 'scss',
+              plugins: ['postcss']
+            },
+            'less': {
+              parser: 'less',
+              plugins: ['postcss']
+            },
+            'json': {
+              parser: 'json',
+              plugins: ['babel']
+            },
+            'markdown': {
+              parser: 'markdown',
+              plugins: ['markdown']
+            },
+            'yaml': {
+              parser: 'yaml',
+              plugins: ['yaml']
+            },
+            'vue': {
+              parser: 'vue',
+              plugins: ['html']
+            },
+            'angular': {
+              parser: 'angular',
+              plugins: ['html']
+            },
+            'php': {
+              parser: 'php',
+              plugins: ['php']
+            },
+            'java': {
+              parser: 'java',
+              plugins: ['java']
+            }
+          };
+          
+          return configs[parser] || configs['babel'];
+        };
+
+        // --- Error Handling with Fallback ---
+        const formatWithFallback = async (code, selectedParser) => {
+          const configs = [
+            { parser: selectedParser, name: selectedParser },
+            { parser: 'babel', name: 'JavaScript' },
+            { parser: 'html', name: 'HTML' },
+            { parser: 'css', name: 'CSS' },
+            { parser: 'json', name: 'JSON' }
+          ];
+
+          for (const config of configs) {
+            try {
+              const parserConfig = getParserConfig(config.parser);
+              const options = {
+                parser: parserConfig.parser,
+                plugins: window.prettierPlugins || [],
+                printWidth: parseInt(document.getElementById("lineLength").value) || 80,
+                tabWidth: document.getElementById("indentSelect").value === "tab" ? 2 : 
+                         parseInt(document.getElementById("indentSelect").value),
+                useTabs: document.getElementById("indentSelect").value === "tab",
+                semi: document.getElementById("semicolons").checked,
+                singleQuote: document.getElementById("quoteStyle").checked,
+                trailingComma: "es5",
+                bracketSpacing: true,
+                arrowParens: "always",
+              };
+
+              const formatted = prettier.format(code, options);
+              
+              if (config.parser !== selectedParser) {
+                showNotification(`Formatted as ${config.name} (${selectedParser} failed)`, false);
+              }
+              
+              return formatted;
+            } catch (e) {
+              if (config === configs[configs.length - 1]) {
+                throw new Error(`Unable to format code. Please check syntax and language selection. Last error: ${e.message}`);
+              }
+              continue;
+            }
+          }
+        };
 
         // --- Utility Functions ---
         const showNotification = (message, isError = false) => {
           const notification = document.createElement("div");
           notification.textContent = message;
-          notification.className = `fixed bottom-5 right-5 px-4 py-2 rounded-md text-white shadow-lg ${
+          notification.className = `fixed bottom-5 right-5 px-4 py-2 rounded-md text-white shadow-lg z-50 ${
             isError ? "bg-red-500" : "bg-green-500"
           }`;
           document.body.appendChild(notification);
           setTimeout(() => {
             notification.remove();
-          }, 3000);
+          }, 4000);
         };
 
         const copyToClipboard = (text, button) => {
@@ -303,6 +545,24 @@
             showNotification("Nothing to copy!", true);
             return;
           }
+          
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+              const originalIcon = button.innerHTML;
+              button.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+              setTimeout(() => {
+                button.innerHTML = originalIcon;
+              }, 2000);
+              showNotification("Copied to clipboard!");
+            }).catch(() => {
+              fallbackCopy(text, button);
+            });
+          } else {
+            fallbackCopy(text, button);
+          }
+        };
+
+        const fallbackCopy = (text, button) => {
           const textArea = document.createElement("textarea");
           textArea.style.position = "fixed";
           textArea.style.top = "-9999px";
@@ -316,6 +576,7 @@
             setTimeout(() => {
               button.innerHTML = originalIcon;
             }, 2000);
+            showNotification("Copied to clipboard!");
           } catch (err) {
             showNotification("Failed to copy!", true);
           }
@@ -332,8 +593,8 @@
           }
         };
 
-        // --- Formatting Logic ---
-        const formatCode = () => {
+        // --- Main Formatting Logic ---
+        const formatCode = async () => {
           const code = inputCode.value;
           if (!code.trim()) {
             showNotification("Please enter some code to format.", true);
@@ -342,65 +603,80 @@
 
           // Show loading state
           outputCode.innerHTML =
-            '<span class="text-gray-500 dark:text-gray-400 animate-pulse-fast">Formatting...</span>';
+            '<span class="text-gray-500 dark:text-gray-400 animate-pulse-fast"><i class="fas fa-spinner fa-spin mr-2"></i>Formatting...</span>';
           formatBtn.disabled = true;
 
-          setTimeout(() => {
-            try {
-              const indent = document.getElementById("indentSelect").value;
-              const options = {
-                parser: languageSelect.value,
-                plugins: prettierPlugins,
-                printWidth:
-                  parseInt(document.getElementById("lineLength").value) || 80,
-                tabWidth: indent === "tab" ? 2 : parseInt(indent), // default tabWidth
-                useTabs: indent === "tab",
-                semi: document.getElementById("semicolons").checked,
-                singleQuote: document.getElementById("quoteStyle").checked,
-                // Add other common options for good formatting
-                trailingComma: "es5",
-                bracketSpacing: true,
-                arrowParens: "always",
-              };
-
-              // Handle SQL dialect specifically if needed
-              if (options.parser === "sql") {
-                options.language = "sql"; // or 'mysql', 'plsql' etc.
-              }
-
-              const formatted = prettier.format(code, options);
-              outputCode.textContent = formatted;
-            } catch (e) {
-              // Detect parser/language mismatch
-              let message = e.message;
-              if (
-                message.includes("SyntaxError") ||
-                message.includes("Unexpected token") ||
-                message.includes("No parser could be inferred")
-              ) {
-                message =
-                  "Formatting failed: The code does not match the selected language or contains syntax errors.";
-              }
-              outputCode.innerHTML = `<span class="text-red-500">Error: ${message}</span>`;
-              showNotification(message, true);
-              console.error(e);
-            } finally {
-              formatBtn.disabled = false;
-            }
-          }, 50); // Small timeout to allow UI to update to "Formatting..."
+          try {
+            const formatted = await formatWithFallback(code, languageSelect.value);
+            outputCode.textContent = formatted;
+            showNotification("Code formatted successfully!");
+          } catch (e) {
+            outputCode.innerHTML = `<span class="text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error: ${e.message}</span>`;
+            showNotification(e.message, true);
+            console.error(e);
+          } finally {
+            formatBtn.disabled = false;
+          }
         };
 
         // --- Event Listeners ---
         formatBtn.addEventListener("click", formatCode);
-        languageSelect.addEventListener(
-          "change",
-          updateSemicolonOptionVisibility
-        );
+        languageSelect.addEventListener("change", updateSemicolonOptionVisibility);
+
+        // Auto-detect functionality
+        autoDetectBtn.addEventListener("click", () => {
+          const code = inputCode.value.trim();
+          if (!code) {
+            showNotification("Enter some code first for auto-detection.", true);
+            return;
+          }
+          
+          const detected = detectLanguage(code);
+          if (detected) {
+            languageSelect.value = detected;
+            updateSemicolonOptionVisibility();
+            showNotification(`Language detected: ${languageSelect.selectedOptions[0].textContent}`);
+          } else {
+            showNotification("Could not detect language. Please select manually.", true);
+          }
+        });
+
+        // Input change detection for suggestions
+        let debounceTimer;
+        inputCode.addEventListener('input', () => {
+          clearTimeout(debounceTimer);
+          languageSuggestion.classList.add('hidden');
+          
+          debounceTimer = setTimeout(() => {
+            const code = inputCode.value.trim();
+            if (code.length > 50) { // Only suggest for substantial code
+              const detected = detectLanguage(code);
+              if (detected && detected !== languageSelect.value) {
+                showLanguageSuggestion(detected);
+              }
+            }
+          }, 1000);
+        });
+
+        // Suggestion handlers
+        applySuggestion.addEventListener('click', () => {
+          if (suggestedParser) {
+            languageSelect.value = suggestedParser;
+            updateSemicolonOptionVisibility();
+            languageSuggestion.classList.add('hidden');
+            showNotification(`Switched to ${languageSelect.selectedOptions[0].textContent}`);
+          }
+        });
+
+        dismissSuggestion.addEventListener('click', () => {
+          languageSuggestion.classList.add('hidden');
+        });
 
         clearBtn.addEventListener("click", () => {
           inputCode.value = "";
           outputCode.innerHTML =
             '<span class="text-gray-400 dark:text-gray-500">// Formatted code will appear here...</span>';
+          languageSuggestion.classList.add('hidden');
         });
 
         copyBtn.addEventListener("click", () => {
@@ -419,9 +695,15 @@
             typescript: "ts",
             html: "html",
             css: "css",
+            scss: "scss",
+            less: "less",
+            json: "json",
+            markdown: "md",
+            yaml: "yml",
+            vue: "vue",
+            angular: "component.html",
             php: "php",
             java: "java",
-            sql: "sql",
           };
           const extension = extensionMap[lang] || "txt";
           const blob = new Blob([text], { type: "text/plain" });
@@ -433,38 +715,25 @@
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
+          showNotification("File downloaded!");
         });
 
-        themeToggle.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            document.documentElement.classList.contains("dark")
-              ? "dark"
-              : "light"
-          );
+        // Keyboard shortcuts
+        inputCode.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            formatCode();
+          }
         });
 
         // --- Initialization ---
-        if (
-          localStorage.getItem("theme") === "dark" ||
-          (!localStorage.getItem("theme") &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
         updateSemicolonOptionVisibility();
+        
+        // Initialize prettier plugins
+        window.prettierPlugins = window.prettierPlugins || [];
       });
-    </script>
-    <script>
-      // Ensure all plugins are available in window.prettierPlugins
-      window.prettierPlugins = window.prettierPlugins || [];
-      if (window.prettierPluginPhp)
-        window.prettierPlugins.push(window.prettierPluginPhp);
-      if (window.prettierPluginJava)
-        window.prettierPlugins.push(window.prettierPluginJava);
-      if (window.prettierPluginSql)
-        window.prettierPlugins.push(window.prettierPluginSql);
+
+
     </script>
   </body>
 </html>

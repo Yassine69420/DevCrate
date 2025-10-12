@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -86,6 +86,8 @@
         width: 100%;
       }
     </style>
+    <!-- Script de gestion de thème externe -->
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -107,8 +109,9 @@
             class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
             title="Toggle theme"
           >
-            <i class="fas fa-moon dark:hidden"></i>
-            <i class="fas fa-sun hidden dark:block"></i>
+            <!-- Icônes de basculement du thème mises à jour avec des ID -->
+            <i id="moonIcon" class="fas fa-moon"></i>
+            <i id="sunIcon" class="fas fa-sun hidden"></i>
           </button>
         </div>
       </header>
@@ -211,109 +214,72 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const diffOutput = document.getElementById("diffOutput");
+        const themeToggle = document.getElementById("themeToggle");
+        const originalText = document.getElementById("originalText");
+        const changedText = document.getElementById("changedText");
+        const compareBtn = document.getElementById("compareBtn");
+        const swapBtn = document.getElementById("swapBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const clearOriginal = document.getElementById("clearOriginal");
+        const clearChanged = document.getElementById("clearChanged");
 
-        // This function will contain the main application logic
-        const main = () => {
-            const themeToggle = document.getElementById("themeToggle");
-            const originalText = document.getElementById("originalText");
-            const changedText = document.getElementById("changedText");
-            const compareBtn = document.getElementById("compareBtn");
-            const swapBtn = document.getElementById("swapBtn");
-            const clearBtn = document.getElementById("clearBtn");
-            const clearOriginal = document.getElementById("clearOriginal");
-            const clearChanged = document.getElementById("clearChanged");
+        const generateDiff = () => {
+          const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+          
+          const options = {
+              drawFileList: false,
+              matching: "lines",
+              outputFormat: "side-by-side",
+              renderNothingWhenEmpty: true,
+              colorScheme: currentTheme
+          };
 
-            const generateDiff = () => {
-                // Determine the current theme to pass to the diff library
-                const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-                
-                const options = {
-                    drawFileList: false,
-                    matching: "lines",
-                    outputFormat: "side-by-side",
-                    renderNothingWhenEmpty: true,
-                    // *** FIXED: Explicitly set the color scheme for the diff view ***
-                    colorScheme: currentTheme
-                };
+          const oldStr = originalText.value || "";
+          const newStr = changedText.value || "";
 
-                const oldStr = originalText.value || "";
-                const newStr = changedText.value || "";
+          if (!oldStr && !newStr) {
+              diffOutput.innerHTML = "";
+              return;
+          }
 
-                if (!oldStr && !newStr) {
-                    diffOutput.innerHTML = "";
-                    return;
-                }
+          const diffStr = Diff.createTwoFilesPatch(
+              "original", "changed", oldStr, newStr, "", "", { context: 100000 }
+          );
+          
+          const diff2htmlUi = new Diff2HtmlUI(diffOutput, diffStr, options);
+          diff2htmlUi.draw();
+          diff2htmlUi.highlightCode();
+        };
 
-                const diffStr = Diff.createTwoFilesPatch(
-                    "original", "changed", oldStr, newStr, "", "", { context: 100000 }
-                );
-                
-                const diff2htmlUi = new Diff2HtmlUI(diffOutput, diffStr, options);
-                diff2htmlUi.draw();
-                diff2htmlUi.highlightCode();
-            };
+        compareBtn.addEventListener("click", generateDiff);
 
-            compareBtn.addEventListener("click", generateDiff);
+        swapBtn.addEventListener("click", () => {
+            const a = originalText.value;
+            originalText.value = changedText.value;
+            changedText.value = a;
+            generateDiff();
+        });
 
-            swapBtn.addEventListener("click", () => {
-                const a = originalText.value;
-                originalText.value = changedText.value;
-                changedText.value = a;
+        clearBtn.addEventListener("click", () => { diffOutput.innerHTML = ""; });
+        clearOriginal.addEventListener("click", () => { originalText.value = ""; });
+        clearChanged.addEventListener("click", () => { changedText.value = ""; });
+
+        document.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                e.preventDefault();
                 generateDiff();
-            });
-
-            clearBtn.addEventListener("click", () => { diffOutput.innerHTML = ""; });
-            clearOriginal.addEventListener("click", () => { originalText.value = ""; });
-            clearChanged.addEventListener("click", () => { changedText.value = ""; });
-
-            document.addEventListener("keydown", (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-                    e.preventDefault();
-                    generateDiff();
-                }
-            });
-
-            const applyTheme = (theme) => {
-                document.documentElement.classList.toggle("dark", theme === "dark");
-                if (diffOutput.innerHTML.trim()) {
-                    generateDiff();
-                }
-            };
-
-            themeToggle.addEventListener("click", () => {
-                const isDark = document.documentElement.classList.contains("dark");
-                const newTheme = !isDark ? "dark" : "light";
-                localStorage.setItem("theme", newTheme);
-                applyTheme(newTheme);
-            });
-
-            const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-            applyTheme(savedTheme);
-        };
-
-        // --- Robust library loading ---
-        // Poll to see if the libraries have loaded, with a timeout.
-        let attempts = 0;
-        const maxAttempts = 50; // Try for 5 seconds (50 * 100ms)
-
-        const init = () => {
-            if (typeof Diff !== "undefined" && typeof Diff2HtmlUI !== "undefined") {
-                // If libraries are ready, run the main app logic
-                main();
-            } else if (attempts < maxAttempts) {
-                // If not ready, wait and try again
-                attempts++;
-                setTimeout(init, 100);
-            } else {
-                // If it times out, show an error
-                diffOutput.innerHTML =
-                    '<div class="p-4 text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-200 rounded-lg">Error: A required diffing library failed to load. Please check your internet connection or ad-blocker and refresh the page.</div>';
             }
-        };
+        });
 
-        // Start the initialization check
-        init();
+        // La gestion du thème est maintenant prise en charge par le script externe
+        // L'écouteur d'événement sur themeToggle est supprimé ici
+        
+        // La fonction main() n'est plus nécessaire car le code n'a plus besoin d'attendre le chargement des scripts.
       });
+    </script>
+    <script>
+      // The theme related stuff is now in Theme.js
+      // So no need to check theme or handle theme logic
     </script>
   </body>
 </html>

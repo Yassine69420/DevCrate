@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -71,6 +71,8 @@
         animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
     </style>
+    <!-- Script de gestion de thème externe -->
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -92,8 +94,9 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <!-- Icônes de basculement du thème mises à jour avec des ID -->
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
@@ -227,7 +230,6 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- DOM Elements ---
-        const themeToggle = document.getElementById("themeToggle");
         const generateBtn = document.getElementById("generateBtn");
         const outputContent = document.getElementById("outputContent");
         const outputTitle = document.getElementById("outputTitle");
@@ -540,7 +542,7 @@ test:
 
         // --- Functions ---
         const generateContent = () => {
-          const fileType = fileTypeSelect.value;
+          const fileType = document.getElementById("fileType").value;
           const projectType = document.getElementById("projectType").value;
           const port = document.getElementById("port").value;
 
@@ -639,24 +641,7 @@ test:
           URL.revokeObjectURL(url);
         });
 
-        themeToggle.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem(
-            "theme",
-            document.documentElement.classList.contains("dark")
-              ? "dark"
-              : "light"
-          );
-        });
-
         // --- Initialization ---
-        if (
-          localStorage.getItem("theme") === "dark" ||
-          (!localStorage.getItem("theme") &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
         toggleCIProvider(); // Set initial state
       });
     </script>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -61,6 +61,8 @@
         tab-size: 2;
       }
     </style>
+    <!-- Script de gestion de thème externe -->
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -82,8 +84,9 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <!-- Icônes de basculement du thème mises à jour avec des ID -->
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
@@ -101,7 +104,7 @@
                 Plain Text
               </h2>
               <div class="flex items-center space-x-2">
-                 <button
+                <button
                   id="copyInputBtn"
                   class="text-gray-500 hover:text-primary-500"
                   title="Copy plain text"
@@ -135,7 +138,7 @@
               <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                 Base64
               </h2>
-               <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-2">
                 <button
                   id="copyOutputBtn"
                   class="text-gray-500 hover:text-primary-500"
@@ -143,7 +146,7 @@
                 >
                   <i class="fas fa-copy"></i>
                 </button>
-                 <button
+                <button
                   id="clearOutputBtn"
                   class="text-gray-500 hover:text-primary-500"
                   title="Clear output"
@@ -182,7 +185,7 @@
               id="decodeBtn"
               class="btn-primary w-full sm:w-auto px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium"
             >
-             <i class="fas fa-arrow-left mr-2"></i> Decode
+              <i class="fas fa-arrow-left mr-2"></i> Decode
             </button>
           </div>
         </div>
@@ -192,9 +195,7 @@
       <footer
         class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
       >
-        <p>
-          © 2025 DevCrate. Convert between Base64 and plain text with ease.
-        </p>
+        <p>© 2025 DevCrate. Convert between Base64 and plain text with ease.</p>
       </footer>
     </div>
 
@@ -215,16 +216,23 @@
         // --- Unicode-safe Base64 functions ---
         // Reference: https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
         const b64Encode = (str) => {
-            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-                return String.fromCharCode('0x' + p1);
-            }));
-        }
+          return btoa(
+            encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+              return String.fromCharCode("0x" + p1);
+            })
+          );
+        };
 
         const b64Decode = (str) => {
-            return decodeURIComponent(atob(str).split('').map((c) => {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-        }
+          return decodeURIComponent(
+            atob(str)
+              .split("")
+              .map((c) => {
+                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join("")
+          );
+        };
 
         // --- Core Logic ---
         const handleEncode = () => {
@@ -247,7 +255,7 @@
 
         const handleDecode = () => {
           statusMessage.textContent = "";
-           if (!outputText.value) {
+          if (!outputText.value) {
             statusMessage.textContent = "Base64 text is empty.";
             statusMessage.className = "text-sm font-medium text-yellow-500";
             return;
@@ -278,7 +286,7 @@
         });
 
         const copyToClipboard = (text, button) => {
-           if (text) {
+          if (text) {
             navigator.clipboard
               .writeText(text)
               .then(() => {
@@ -298,33 +306,17 @@
                 }, 2000);
               });
           }
-        }
-
-        copyInputBtn.addEventListener("click", () => copyToClipboard(inputText.value, copyInputBtn));
-        copyOutputBtn.addEventListener("click", () => copyToClipboard(outputText.value, copyOutputBtn));
-
-
-        // --- Theme Toggle ---
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-          }
         };
 
-        themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", isDark ? "dark" : "light");
-          applyTheme(isDark ? "dark" : "light");
-        });
+        copyInputBtn.addEventListener("click", () =>
+          copyToClipboard(inputText.value, copyInputBtn)
+        );
+        copyOutputBtn.addEventListener("click", () =>
+          copyToClipboard(outputText.value, copyOutputBtn)
+        );
 
-        const savedTheme =
-          localStorage.getItem("theme") ||
-          (window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        applyTheme(savedTheme);
+        // --- Theme Toggle ---
+        // Ce code a été retiré car il est désormais géré par le script Theme.js
       });
     </script>
   </body>

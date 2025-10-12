@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -52,9 +52,6 @@
           0 2px 4px -1px rgba(0, 0, 0, 0.06);
       }
     </style>
-    
-    <!-- Load theme script as early as possible to prevent flash -->
-    <script src="theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -63,17 +60,16 @@
         <div>
           <a href="DevCrate.html" class="flex items-center">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-              Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+              Dev<span class="text-primary-600 dark:text-primary-400"
+                >Crate</span
+              >
             </h1>
           </a>
           <p class="text-gray-600 dark:text-gray-400 mt-1">JWT Decoder</p>
         </div>
-        
-        <!-- Updated theme toggle button -->
         <button
           id="themeToggle"
-          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
-          aria-label="Toggle dark mode"
+          class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
           <i id="moonIcon" class="fas fa-moon"></i>
           <i id="sunIcon" class="fas fa-sun hidden"></i>
@@ -84,8 +80,12 @@
       <main>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Input Section -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+            >
               <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                 Encoded JWT
               </h2>
@@ -106,27 +106,41 @@
 
           <!-- Output Section -->
           <div class="space-y-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+            >
               <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                   Header
                 </h2>
               </div>
-              <pre id="headerOutput" class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"></pre>
+              <pre
+                id="headerOutput"
+                class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"
+              ></pre>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+            >
               <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                   Payload
                 </h2>
               </div>
-              <pre id="payloadOutput" class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"></pre>
+              <pre
+                id="payloadOutput"
+                class="p-4 font-mono text-sm text-gray-900 dark:text-white break-all"
+              ></pre>
             </div>
           </div>
         </div>
-        
-        <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div id="statusMessage" class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5">
+        <div
+          class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div
+            id="statusMessage"
+            class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5"
+          >
             &nbsp;
           </div>
           <button
@@ -139,14 +153,17 @@
       </main>
 
       <!-- Footer -->
-      <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+      <footer
+        class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400"
+      >
         <p>© 2023 DevCrate. Decode and inspect JSON Web Tokens.</p>
       </footer>
     </div>
+    <script src="assets/js/Theme.js"></script>
 
-    <!-- Page-specific JavaScript -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.getElementById("themeToggle");
         const jwtInput = document.getElementById("jwtInput");
         const decodeBtn = document.getElementById("decodeBtn");
         const clearBtn = document.getElementById("clearBtn");

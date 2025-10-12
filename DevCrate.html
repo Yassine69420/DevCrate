@@ -15,6 +15,28 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <!-- immediate theme setter — place BEFORE tailwind script -->
+    <script>
+      (function () {
+        try {
+          const KEY = "devcrate-theme";
+          const saved = localStorage.getItem(KEY);
+          if (saved === "dark" || saved === "light") {
+            document.documentElement.classList.toggle("dark", saved === "dark");
+          } else if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {
+          // ignore storage errors (privacy mode)
+        }
+      })();
+    </script>
+
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -57,9 +79,9 @@
         transform: rotate(15deg) scale(1.1);
       }
     </style>
-    
+
     <!-- Load theme script early to prevent flash -->
-    <script src="theme.js"></script>
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8">
@@ -73,7 +95,7 @@
             A curated collection of essential developer tools
           </p>
         </div>
-        
+
         <!-- Updated theme toggle button - unified with theme.js -->
         <button
           id="themeToggle"
@@ -168,12 +190,7 @@
             icon: "fas fa-network-wired",
             link: "APIRequestBuilder.html",
           },
-          {
-            title: "SQL Query Builder",
-            desc: "Build and test SQL queries with syntax highlighting and execution options.",
-            icon: "fas fa-database",
-            link: "SQLQueryBuilder.html",
-          },
+          
           {
             title: "CSV/Excel Converter",
             desc: "Convert CSV files to Excel format and vice versa with easy download options.",
@@ -285,7 +302,7 @@
         // Render tool cards dynamically
         const renderTools = (toolsToRender = tools) => {
           toolsGrid.innerHTML = ""; // Clear existing cards
-          
+
           toolsToRender.forEach((tool) => {
             const card = document.createElement("a");
             card.href = tool.link;

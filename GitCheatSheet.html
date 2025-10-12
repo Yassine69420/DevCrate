@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -71,6 +71,8 @@
         opacity: 1;
       }
     </style>
+    <!-- Script de gestion de thème externe -->
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-8">
@@ -89,6 +91,7 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900"
         >
+          <!-- Icônes pour basculer le thème -->
           <i id="moonIcon" class="fas fa-moon"></i>
           <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
@@ -356,34 +359,8 @@
         const moonIcon = document.getElementById("moonIcon");
         const sunIcon = document.getElementById("sunIcon");
 
-        const applyTheme = (theme) => {
-          if (theme === "dark") {
-            htmlElement.classList.add("dark");
-            moonIcon.classList.add("hidden");
-            sunIcon.classList.remove("hidden");
-          } else {
-            htmlElement.classList.remove("dark");
-            moonIcon.classList.remove("hidden");
-            sunIcon.classList.add("hidden");
-          }
-        };
-
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-          applyTheme(savedTheme);
-        } else {
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-          ).matches;
-          applyTheme(prefersDark ? "dark" : "light");
-        }
-
-        themeToggle.addEventListener("click", () => {
-          const isDark = htmlElement.classList.toggle("dark");
-          const newTheme = isDark ? "dark" : "light";
-          localStorage.setItem("theme", newTheme);
-          applyTheme(newTheme);
-        });
+        // The theme related stuff is now in Theme.js
+        // So no need to check theme or handle theme logic
 
         // --- Copy Functionality ---
         document.body.addEventListener("click", (e) => {

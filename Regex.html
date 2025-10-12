@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,28 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <!-- immediate theme setter — place BEFORE tailwind script -->
+    <script>
+      (function () {
+        try {
+          const KEY = "devcrate-theme";
+          const saved = localStorage.getItem(KEY);
+          if (saved === "dark" || saved === "light") {
+            document.documentElement.classList.toggle("dark", saved === "dark");
+          } else if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {
+          // ignore storage errors (privacy mode)
+        }
+      })();
+    </script>
+
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -55,19 +77,18 @@
       /* Light & Dark mode match highlight */
       .match-highlight {
         border-radius: 3px;
+        background-color: rgba(96, 165, 250, 0.4);
+        box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.7);
       }
-      @media (prefers-color-scheme: light) {
-        .match-highlight {
-          background-color: rgba(59, 130, 246, 0.5);
-          box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7);
-        }
+      .dark .match-highlight {
+        background-color: rgba(96, 165, 250, 0.4);
+        box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.7);
       }
-      @media (prefers-color-scheme: dark) {
-        .match-highlight {
-          background-color: rgba(96, 165, 250, 0.4);
-          box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.7);
-        }
+      html:not(.dark) .match-highlight {
+        background-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7);
       }
+
       .regex-input:focus {
         border-color: #38bdf8;
         box-shadow: 0 0 0 1px #38bdf8;
@@ -85,6 +106,7 @@
         animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
     </style>
+    <script src="assets/js/Theme.js"></script>
   </head>
   <body
     class="bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100"
@@ -108,8 +130,8 @@
           id="themeToggle"
           class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200"
         >
-          <i class="fas fa-moon dark:hidden"></i>
-          <i class="fas fa-sun hidden dark:block"></i>
+          <i id="moonIcon" class="fas fa-moon"></i>
+          <i id="sunIcon" class="fas fa-sun hidden"></i>
         </button>
       </header>
 
@@ -393,7 +415,6 @@
     </div>
 
     <script>
-      const themeToggle = document.getElementById("themeToggle");
       const regexPatternInput = document.getElementById("regexPattern");
       const testStringInput = document.getElementById("testString");
       const flagGlobal = document.getElementById("flagGlobal");
@@ -474,21 +495,6 @@
         el.addEventListener("change", runTest)
       );
       runTest();
-
-      themeToggle.addEventListener("click", () => {
-        document.documentElement.classList.toggle("dark");
-        localStorage.setItem(
-          "theme",
-          document.documentElement.classList.contains("dark") ? "dark" : "light"
-        );
-      });
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!localStorage.getItem("theme") &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-      }
 
       clearBtn.addEventListener("click", () => {
         testStringInput.value = "";
