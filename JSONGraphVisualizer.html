@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Graph Visualizer | DevCrate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script>
+        // Tailwind CSS configuration
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: "#f0f9ff",
+                            100: "#e0f2fe",
+                            200: "#bae6fd",
+                            300: "#7dd3fc",
+                            400: "#38bdf8",
+                            500: "#0ea5e9",
+                            600: "#0284c7",
+                            700: "#0369a1",
+                            800: "#075985",
+                            900: "#0c4a6e",
+                        },
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', '"Courier New"', "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .graph-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+    </style>
+    <script src="assets/js/Theme.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <a href="DevCrate.html" class="flex items-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                        Dev<span class="text-primary-600 dark:text-primary-400">Crate</span>
+                    </h1>
+                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    JSON Graph Visualizer
+                </p>
+            </div>
+            <button id="themeToggle" class="theme-toggle bg-gray-200 dark:bg-gray-700 rounded-full p-3 text-gray-700 dark:text-gray-200">
+                <i id="moonIcon" class="fas fa-moon"></i>
+                <i id="sunIcon" class="fas fa-sun hidden"></i>
+            </button>
+        </header>
+
+        <!-- Main content -->
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input section -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            JSON Input
+                        </h2>
+                        <button id="clearBtn" class="text-gray-500 hover:text-primary-500" title="Clear input">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <textarea id="jsonInput" class="code-editor w-full p-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none resize-y" placeholder="Paste your JSON here..." spellcheck="false"></textarea>
+                </div>
+
+                <!-- Graph section -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Graph Visualization
+                        </h2>
+                    </div>
+                    <div id="graphContainer" class="graph-container p-4"></div>
+                </div>
+            </div>
+
+            <!-- Action and Status Section -->
+            <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div id="statusMessage" class="text-sm font-medium text-gray-500 dark:text-gray-400 h-5">
+                    &nbsp;
+                </div>
+                <button id="visualizeBtn" class="btn-primary w-full sm:w-auto px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-medium">
+                    <i class="fas fa-project-diagram mr-2"></i> Visualize
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+            <p>
+                © 2025 DevCrate. Visualize your JSON data as a force-directed graph.
+            </p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM Elements ---
+        const themeToggle = document.getElementById("themeToggle");
+        const jsonInput = document.getElementById("jsonInput");
+        const visualizeBtn = document.getElementById("visualizeBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const statusMessage = document.getElementById("statusMessage");
+        const graphContainer = document.getElementById("graphContainer");
+
+        visualizeBtn.addEventListener("click", () => {
+            const jsonText = jsonInput.value;
+            if (!jsonText) {
+                statusMessage.textContent = "Please enter JSON data.";
+                return;
+            }
+
+            try {
+                const jsonData = JSON.parse(jsonText);
+                renderGraph(jsonData);
+                statusMessage.textContent = "Graph rendered successfully.";
+            } catch (error) {
+                statusMessage.textContent = "Invalid JSON data: " + error.message;
+            }
+        });
+
+        clearBtn.addEventListener("click", () => {
+            jsonInput.value = "";
+            statusMessage.textContent = "";
+            graphContainer.innerHTML = "";
+        });
+
+        function renderGraph(data) {
+            graphContainer.innerHTML = "";
+
+            const width = graphContainer.clientWidth;
+            const height = graphContainer.clientHeight;
+
+            const svg = d3.select(graphContainer).append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .call(d3.zoom().on("zoom", function (event) {
+                    svg.attr("transform", event.transform);
+                }))
+                .append("g");
+
+            const { nodes, links } = jsonToGraphData(data);
+
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const link = svg.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", "#999")
+                .attr("stroke-opacity", 0.6);
+
+            const node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g")
+                .call(drag(simulation));
+
+            node.append("rect")
+                .attr("width", 100)
+                .attr("height", 30)
+                .attr("fill", d => d.children ? "#f0f9ff" : "#fff")
+                .attr("stroke", "#0ea5e9")
+                .attr("stroke-width", 1.5);
+
+            node.append("text")
+                .attr("x", 50)
+                .attr("y", 15)
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .text(d => d.name)
+                .attr("fill", "#333");
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x - 50},${d.y - 15})`);
+            });
+        }
+
+        function jsonToGraphData(data) {
+            const nodes = [];
+            const links = [];
+            let idCounter = 0;
+
+            function traverse(key, value, parentId) {
+                const nodeId = idCounter++;
+                let name;
+
+                const valueType = typeof value;
+                if (valueType === 'object' && value !== null) {
+                    name = Array.isArray(value) ? `${key} [Array]` : `${key} {Object}`;
+                } else {
+                    // Truncate long values for display
+                    let displayValue = String(value);
+                    if (displayValue.length > 20) {
+                        displayValue = displayValue.substring(0, 17) + '...';
+                    }
+                    name = `${key}: ${displayValue}`;
+                }
+
+                nodes.push({ id: nodeId, name: name });
+
+                if (parentId !== null) {
+                    links.push({ source: parentId, target: nodeId });
+                }
+
+                if (valueType === 'object' && value !== null) {
+                    if (Array.isArray(value)) {
+                        value.forEach((item, index) => {
+                            traverse(`[${index}]`, item, nodeId);
+                        });
+                    } else {
+                        for (const subKey in value) {
+                            if (value.hasOwnProperty(subKey)) {
+                                traverse(subKey, value[subKey], nodeId);
+                            }
+                        }
+                    }
+                }
+                return nodeId;
+            }
+
+            traverse('root', data, null);
+            return { nodes, links };
+        }
+
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+    });
+    </script>
+</body>
+</html>
