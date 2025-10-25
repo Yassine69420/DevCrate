@@ -157,125 +157,85 @@
                 }))
                 .append("g");
 
-            const { nodes, links } = jsonToGraphData(data);
+            const hierarchicalData = jsonToGraphData(data);
+            const root = d3.hierarchy(hierarchicalData);
 
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                .force("charge", d3.forceManyBody().strength(-300))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+            const treeLayout = d3.tree().size([height, width - 200]);
+            treeLayout(root);
+
+            const nodes = root.descendants();
+            const links = root.links();
 
             const link = svg.append("g")
                 .attr("class", "links")
-                .selectAll("line")
+                .selectAll("path")
                 .data(links)
-                .enter().append("line")
+                .enter().append("path")
+                .attr("fill", "none")
                 .attr("stroke", "#999")
-                .attr("stroke-opacity", 0.6);
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x));
 
             const node = svg.append("g")
                 .attr("class", "nodes")
                 .selectAll("g")
                 .data(nodes)
                 .enter().append("g")
-                .call(drag(simulation));
+                .attr("transform", d => `translate(${d.y},${d.x})`);
 
-            node.append("rect")
-                .attr("width", 100)
-                .attr("height", 30)
-                .attr("fill", d => d.children ? "#f0f9ff" : "#fff")
-                .attr("stroke", "#0ea5e9")
-                .attr("stroke-width", 1.5);
+            const PADDING = 10;
 
             node.append("text")
-                .attr("x", 50)
-                .attr("y", 15)
                 .attr("text-anchor", "middle")
                 .attr("alignment-baseline", "middle")
-                .text(d => d.name)
-                .attr("fill", "#333");
-
-            simulation.on("tick", () => {
-                link
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
-
-                node
-                    .attr("transform", d => `translate(${d.x - 50},${d.y - 15})`);
-            });
+                .text(d => d.data.name)
+                .attr("fill", "#333")
+                .each(function() {
+                    const bbox = this.getBBox();
+                    d3.select(this.parentNode).insert("rect", "text")
+                        .attr("x", bbox.x - PADDING)
+                        .attr("y", bbox.y - PADDING)
+                        .attr("width", bbox.width + (PADDING * 2))
+                        .attr("height", bbox.height + (PADDING * 2))
+                        .attr("fill", d => d.children ? "#f0f9ff" : "#fff")
+                        .attr("stroke", "#0ea5e9")
+                        .attr("stroke-width", 1.5)
+                        .attr("rx", 5)
+                        .attr("ry", 5);
+                });
         }
 
         function jsonToGraphData(data) {
-            const nodes = [];
-            const links = [];
-            let idCounter = 0;
-
-            function traverse(key, value, parentId) {
-                const nodeId = idCounter++;
-                let name;
-
+            function traverse(key, value) {
+                const node = { name: key };
                 const valueType = typeof value;
+
                 if (valueType === 'object' && value !== null) {
-                    name = Array.isArray(value) ? `${key} [Array]` : `${key} {Object}`;
+                    node.children = [];
+                    if (Array.isArray(value)) {
+                        node.name += ' [Array]';
+                        value.forEach((item, index) => {
+                            node.children.push(traverse(`[${index}]`, item));
+                        });
+                    } else {
+                        node.name += ' {Object}';
+                        for (const subKey in value) {
+                            if (value.hasOwnProperty(subKey)) {
+                                node.children.push(traverse(subKey, value[subKey]));
+                            }
+                        }
+                    }
                 } else {
-                    // Truncate long values for display
                     let displayValue = String(value);
                     if (displayValue.length > 20) {
                         displayValue = displayValue.substring(0, 17) + '...';
                     }
-                    name = `${key}: ${displayValue}`;
+                    node.name = `${key}: ${displayValue}`;
                 }
-
-                nodes.push({ id: nodeId, name: name });
-
-                if (parentId !== null) {
-                    links.push({ source: parentId, target: nodeId });
-                }
-
-                if (valueType === 'object' && value !== null) {
-                    if (Array.isArray(value)) {
-                        value.forEach((item, index) => {
-                            traverse(`[${index}]`, item, nodeId);
-                        });
-                    } else {
-                        for (const subKey in value) {
-                            if (value.hasOwnProperty(subKey)) {
-                                traverse(subKey, value[subKey], nodeId);
-                            }
-                        }
-                    }
-                }
-                return nodeId;
+                return node;
             }
-
-            traverse('root', data, null);
-            return { nodes, links };
-        }
-
-
-        function drag(simulation) {
-            function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
-
-            function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
-
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-
-            return d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended);
+            return traverse('root', data);
         }
     });
     </script>
